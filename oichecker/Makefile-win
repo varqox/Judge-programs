@@ -1,0 +1,19 @@
+CXX = wine GNU/MinGW64/bin/g++.exe
+CXXFLAGS = -O3 -static -m32 -Wall
+LDFLAGS = -s $(CXXFLAGS)
+
+.PHONY: all
+
+all: oichecker.exe
+
+oichecker.exe: checker-win.o gen-win.o oichecker-win.o
+	$(CXX) $^ $(LDFLAGS) -o $@
+
+checker-win.o: checker.cpp checker.hpp
+	$(CXX) $< -c $(CXXFLAGS) -o $@
+
+gen-win.o: gen.cpp gen.hpp
+	$(CXX) $< -c $(CXXFLAGS) -o $@
+
+oichecker-win.o: oichecker.cpp checker.hpp gen.hpp
+	$(CXX) $< -c $(CXXFLAGS) -o $@
