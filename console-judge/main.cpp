@@ -68,7 +68,6 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 {
 	char outf_name[L_tmpnam];
 	tmpnam(outf_name);
-	// cerr << outf_name << endl;
 	// runtime
 	timeval ts, te;
 	gettimeofday(&ts, NULL);
@@ -99,7 +98,6 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 		cout << cl << 's' << endl;
 		remove(outf_name);
 	}
-	// bool ;
 	deque<string> out_in, ans_in;
 	string out_tmp, ans_tmp;
 	while(out.good() && ans.good())
@@ -165,8 +163,6 @@ void task::make_list_of_tests()
 			if(name_lenght>3 && 0==memcmp(current_file->d_name+name_lenght-3, ".in", 3)) this->_test_names.push_back(string(current_file->d_name, name_lenght-3));
 		}
 	sort(this->_test_names.begin(), this->_test_names.end(), compare());
-	// for(vector<string>::iterator i=this->_test_names.begin(); i!=this->_test_names.end(); ++i)
-		// cerr << *i << endl;
 }
 
 void task::judge(int argc, char** argv)
