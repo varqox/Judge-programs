@@ -171,6 +171,8 @@ void task::make_list_of_tests()
 
 void task::judge(int argc, char** argv)
 {
+	this->_total_time=this->_max_time=0;
+	this->_longest_test="";
 	vector<string>().swap(this->_test_names);
 	vector<string>().swap(this->WA);
 	bool show_wrongs_info=argc==1;
