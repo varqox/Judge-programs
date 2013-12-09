@@ -171,7 +171,7 @@ void task::judge(int argc, char** argv)
 	this->_longest_test="";
 	vector<string>().swap(this->_test_names);
 	vector<string>().swap(this->WA);
-	bool show_wrongs_info=argc==1;
+	bool show_wrongs_info=argc!=1;
 	if(argc==1) this->make_list_of_tests();
 	else
 		for(int i=1; i<argc; ++i)
