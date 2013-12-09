@@ -60,7 +60,7 @@ public:
 void remove_trailing_spaces(string& str)
 {
 	string::iterator erase_begin=str.end();
-	while(!str.empty() && isspace(*str.rbegin())) --erase_begin;
+	while(erase_begin!=str.begin() && isspace(*(erase_begin-1))) --erase_begin;
 	str.erase(erase_begin, str.end());
 }
 
