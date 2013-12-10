@@ -11,11 +11,15 @@
 #include <cmath>
 #include <deque>
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 using namespace std;
 
 class task
 {
-	string _name, _longest_test;
+	string _name, _longest_test, outf_name;
 	vector<string> _test_names, WA; // WA - wrong tests
 	double _total_time, _max_time;
 
@@ -23,7 +27,22 @@ class task
 
 public:
 	task(const string& str): _name(str), _total_time(0), _max_time(0)
-	{if(*this->_name.rbegin()!='/') this->_name+='/';}
+	{
+		if(*this->_name.rbegin()!='/') this->_name+='/';
+		// get name of temporary file
+	#ifdef WIN32
+		char tmp[MAX_PATH], path[MAX_PATH];
+		GetTempPath(MAX_PATH, path);
+		GetTempFileName(path, TEXT("judge"), 0, tmp);
+	#else
+		char tmp[L_tmpnam]="/tmp/judge.XXXXXX";
+		mkstemp(tmp);
+	#endif
+		this->outf_name=tmp;
+	}
+
+	~task()
+	{remove(this->outf_name.c_str());}
 
 	const string& name() const
 	{return this->_name;}
@@ -66,12 +85,14 @@ void remove_trailing_spaces(string& str)
 
 int task::check_on_test(const string& test, const string& exec, bool wrongs_info)
 {
-	char outf_name[L_tmpnam];
-	tmpnam(outf_name);
 	// runtime
 	timeval ts, te;
 	gettimeofday(&ts, NULL);
-	int ret=system(("./"+exec+" < "+this->_name+test+".in > "+string(outf_name)).c_str());
+#ifdef WIN32
+	int ret=system((exec+" < \""+this->_name+test+".in\" > \""+outf_name+"\"").c_str());
+#else
+	int ret=system(("./"+exec+" < "+this->_name+test+".in > "+outf_name).c_str());
+#endif
 	gettimeofday(&te, NULL);
 	double cl=(te.tv_sec+static_cast<double>(te.tv_usec)/1000000)-(ts.tv_sec+static_cast<double>(ts.tv_usec)/1000000);
 	// end of runtime && time calculating
@@ -84,11 +105,11 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 		this->_longest_test=test;
 	}
 	// checking answer
-	fstream out(outf_name, ios_base::in), ans((this->_name+test+".out").c_str(), ios_base::in);
+	fstream out(outf_name.c_str(), ios_base::in), ans((this->_name+test+".out").c_str(), ios_base::in);
 	if(!out.good() && !ans.good())
 	{
 		cerr << "Error with checking test\n";
-		remove(outf_name);
+		remove(this->outf_name.c_str());
 		return 0;
 	}
 	if(ret!=0)
@@ -96,7 +117,7 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 		cout << test << ": Runtime error (returned value: " << ret << ") time - " << fixed;
 		cout.precision(3);
 		cout << cl << 's' << endl;
-		remove(outf_name);
+		remove(this->outf_name.c_str());
 	}
 	deque<string> out_in, ans_in;
 	string out_tmp, ans_tmp;
@@ -122,7 +143,7 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 			{
 				cout << "Get:\n'" << out_in[line] << "'\nExpected:\n'" << ans_in[line] << '\'' << endl;;
 			}
-			remove(outf_name);
+			remove(this->outf_name.c_str());
 			return 1;
 		}
 	if(ans_in.size()>out_in.size())
@@ -134,14 +155,14 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 		{
 			cout << "Get:\n'EOF'\nExpected:\n'" << ans_in[line] << '\'' << endl;
 		}
-		remove(outf_name);
+		remove(this->outf_name.c_str());
 		return 1;
 	}
 	// end of checking answer
 	cout << test << ": [ OK ] time - " << fixed;
 	cout.precision(3);
 	cout << cl << 's' << endl;
-	remove(outf_name);
+	remove(this->outf_name.c_str());
 return 0;
 }
 
