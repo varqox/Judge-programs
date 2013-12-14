@@ -114,10 +114,11 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 	}
 	if(ret!=0)
 	{
-		cout << test << ": Runtime error (returned value: " << ret << ") time - " << fixed;
+		cout << test << ": Runtime error (returned value: " << (ret>>8) << ") time - " << fixed;
 		cout.precision(3);
 		cout << cl << 's' << endl;
 		remove(this->outf_name.c_str());
+		return 1;
 	}
 	deque<string> out_in, ans_in;
 	string out_tmp, ans_tmp;
