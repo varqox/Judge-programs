@@ -66,7 +66,7 @@ public:
 
 	void make_list_of_tests();
 
-	void judge(int argc, char** argv);
+	void judge(int argc, const char** argv);
 
 	const vector<string>& worng_tests() const
 	{return this->WA;}
@@ -192,7 +192,7 @@ void task::make_list_of_tests()
 	sort(this->_test_names.begin(), this->_test_names.end(), compare());
 }
 
-void task::judge(int argc, char** argv)
+void task::judge(int argc, const char** argv)
 {
 	this->_total_time=this->_max_time=0;
 	this->_longest_test="";
@@ -226,7 +226,7 @@ void task::judge(int argc, char** argv)
 	cout << this->_max_time << "s : " << this->_longest_test << endl;
 }
 
-int main(int argc, char** argv)
+int main(int argc, const char** argv)
 {
 	if(argc<3)
 	{
