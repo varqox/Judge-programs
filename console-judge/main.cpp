@@ -203,7 +203,7 @@ void task::judge(int argc, char** argv)
 	else
 		for(int i=1; i<argc; ++i)
 		{
-			if(file_exist(this->_name+argv[i]))
+			if(file_exist(this->_name+argv[i]+".in"))
 				this->_test_names.push_back(argv[i]);
 			else cerr << argv[i]  << ": test doesn't exist" << endl;
 		}
