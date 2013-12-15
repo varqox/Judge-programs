@@ -11,11 +11,16 @@
 #include <cmath>
 #include <deque>
 
+using namespace std;
+
 #ifdef WIN32
 #include <windows.h>
+	inline bool file_exist(const string& name)
+	{return !system(("IF EXIST \""+name+"\" (EXIT 0) ELSE (EXIT 1)").c_str());}
+#else
+	inline bool file_exist(const string& name)
+	{return !system(("stat "+name+" 2> /dev/null > /dev/null").c_str());}
 #endif
-
-using namespace std;
 
 class task
 {
@@ -197,7 +202,11 @@ void task::judge(int argc, char** argv)
 	if(argc==1) this->make_list_of_tests();
 	else
 		for(int i=1; i<argc; ++i)
-			this->_test_names.push_back(argv[i]);
+		{
+			if(file_exist(this->_name+argv[i]))
+				this->_test_names.push_back(argv[i]);
+			else cerr << argv[i]  << ": test doesn't exist" << endl;
+		}
 	for(vector<string>::iterator current_test=this->_test_names.begin(); current_test!=this->_test_names.end(); ++current_test)
 	{
 		if(this->check_on_test(*current_test, argv[0], show_wrongs_info))
@@ -224,7 +233,12 @@ int main(int argc, char** argv)
 		cerr << "Usage: spr <task name> <exec name> [test names...]\n";
 		return 1;
 	}
-	task judge(argv[1]);
-	judge.judge(argc-2, argv+2);
+	if(!file_exist(argv[1])) cerr << argv[1] << ": doesn't exist" << endl;
+	else if(!file_exist(argv[2])) cerr << argv[2] << ": doesn't exist" << endl;
+	else
+	{
+		task judge(argv[1]);
+		judge.judge(argc-2, argv+2);
+	}
 return 0;
 }
