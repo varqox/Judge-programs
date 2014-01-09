@@ -26,7 +26,7 @@ namespace gen
 		unsigned size=end-begin;
 		if(size==0) return;
 		if(n==0) n=size*__builtin_clz(size)*2;
-		for(int i=0; i<n; ++i)
+		for(unsigned i=0; i<n; ++i)
 			swap(*(begin+rd()%size), *(begin+rd()%size));
 	}
 

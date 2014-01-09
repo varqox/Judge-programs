@@ -71,10 +71,10 @@ public:
 	const vector<string>& worng_tests() const
 	{return this->WA;}
 
-	const double total_time() const
+	double total_time() const
 	{return this->_total_time;}
 
-	const double max_time() const
+	double max_time() const
 	{return this->_max_time;}
 
 	const string& longest_test() const
@@ -138,7 +138,7 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 	}
 	while(!out_in.empty() && out_in.back().empty()) out_in.pop_back();
 	while(!ans_in.empty() && ans_in.back().empty()) ans_in.pop_back();
-	int line=-1;
+	unsigned line=-1; // if we cal ++ we have 0
 	while(++line<out_in.size() && line<ans_in.size())
 		if(ans_in[line]!=out_in[line])
 		{

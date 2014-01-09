@@ -351,7 +351,7 @@ int main()
 			continue;
 		}
 		const char **comm=new const char*[command.size()];
-		for(int i=0; i<command.size(); ++i)
+		for(unsigned i=0; i<command.size(); ++i)
 			comm[i]=command[i].c_str();
 	#ifdef WIN32
 		if(command[0]=="help") cout << "Polecenia:\n   help - wy" << static_cast<char>(-104) << "wietla ten opis\n   exit - wyj" << static_cast<char>(-104) << "cie\n   spr <nazwa_zadania> <exec> [nazwy test" << static_cast<char>(-94) << "w...] - ocenia program exec na testach w folderze tests/nazwa_zadania, mo" << static_cast<char>(-66) << "na poda" << static_cast<char>(-122) << " nazwy test" << static_cast<char>(-94) << "w na kt" << static_cast<char>(-94) << "rych program ma by" << static_cast<char>(-122) << " oceniony, w przypadku nie podania " << static_cast<char>(-66) << "adnych test" << static_cast<char>(-94) << "w program sprawdzi rozwi" << static_cast<char>(-91) << "zanie na wszystkich testach znajduj" << static_cast<char>(-91) << "cych si" << static_cast<char>(-87) << " w danym katalogu\n   sprklo - specjalna sprawdzaczka do zadania KLO - u" << static_cast<char>(-66) << "ywa si" << static_cast<char>(-87) << " jak spr\n   gen <nazwa zadania> <liczba test" << static_cast<char>(-94) << "w> [dodatkowe opcje...] - generuje losowe testy do podanego zadania, dost" << static_cast<char>(-87) << "pne zadania: HOT, BAR, KUR, dodatkowe opcje to np. ograniczenie dla n... (parz przyk" << static_cast<char>(-120) << "ady)\n\nPrzyk" << static_cast<char>(-120) << "ady:\n   spr hot hot - ocenia rozwi" << static_cast<char>(-91) << "zanie w pliku wykonywalnym hot na wszystkich testach w katalogu test/hot/\n   spr hot-big prog 1 2 5 - ocenia rozwi" << static_cast<char>(-91) << "zanie w pliku wykonywalnym prog na testach 1, 2, 5 w katalogu test/hot-big/\n   gen HOT 1037 - generuje 1037 test" << static_cast<char>(-94) << "w do zadania HOT (do katalogu tests/hot)\n   gen kur 17 n<100 m<=20 - generuje 17 test" << static_cast<char>(-94) << "w do zadania kur z ograniczeniami n < 100 oraz m <= 20 (do katalogu tests/kur)\n\nInformacje o generowanych testach:\n1. Testy s" << static_cast<char>(-91) << " generowane do katalog" << static_cast<char>(-94) << "w odpowiadaj" << static_cast<char>(-91) << "cych nazwom zada" << static_cast<char>(-28) << " (ma" << static_cast<char>(-120) << "e litery) np. tests/bar, tests/kur.\n2. Dodatkowe opcje mog" << static_cast<char>(-91) << " zawiera" << static_cast<char>(-122) << " tylko ograniczenia na niekt" << static_cast<char>(-94) << "re sta" << static_cast<char>(-120) << "e w zadaniach w postaci [nazwa zmiennej][symbol][liczba], ca" << static_cast<char>(-120) << "o" << static_cast<char>(-104) << static_cast<char>(-122) << " nie mo" << static_cast<char>(-66) << "e zawiera" << static_cast<char>(-122) << " spacji, dost" << static_cast<char>(-87) << "pne symbole: '<', '<=', '='. Dost" << static_cast<char>(-87) << "pne nazwy zmiennych do zadania:\nHOT - n\nKUR - n, m\nBAR - n\nWAZ - n\nLiczba musi nale" << static_cast<char>(-66) << "e" << static_cast<char>(-122) << " do przedzia" << static_cast<char>(-120) << "u okre" << static_cast<char>(-104) << "lonego w zadaniu.\n3. Domy" << static_cast<char>(-104) << "lne ograniczenia dla generatora w zadaniach:\nHOT: 0 < n <= 5000\nKUR: 0 < n <= 500 000; 0 < m <= 500 000\nBAR: 0 < n <= 10 000" << endl;
@@ -363,13 +363,13 @@ int main()
 		else if(command[0]=="gen") gen::main(command.size(), comm);
 		else
 		{
-			string comm=command[0];
-			for(int i=1; i<command.size(); ++i)
+			string commd=command[0];
+			for(unsigned i=1; i<command.size(); ++i)
 			{
-				comm+=' ';
-				comm+=command[i];
+				commd+=' ';
+				commd+=command[i];
 			}
-			system(comm.c_str());
+			system(commd.c_str());
 		}
 		delete[] comm;
 		get_command(command);

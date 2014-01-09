@@ -10,7 +10,7 @@ using namespace std;
 
 bool is_number(const string& str)
 {
-	for(int i=0; i<str.size(); ++i)
+	for(unsigned i=0; i<str.size(); ++i)
 		if(!(str[i]>='0' && str[i]<='9')) return false;
 return true;
 }
@@ -18,7 +18,7 @@ return true;
 int to_int(const string& str)
 {
 	int out=0;
-	for(int i=0; i<str.size(); ++i)
+	for(unsigned i=0; i<str.size(); ++i)
 	{
 		out*=10;
 		out+=str[i]-'0';
@@ -341,13 +341,13 @@ namespace gen
 		long long get(unsigned centr)
 		{
 			vector<char> col(n+1, -1);
-			int deep=1, qsize, st_centr=G[centr].size();
+			unsigned deep=1, qsize, st_centr=G[centr].size();
 			long long K1, K2, K3, ret=0;
 			if(st_centr<3) return 0;
 			vector<vector<int> > out(2, vector<int>(st_centr));
 			queue<int> q;
 			col[centr]=0;
-			for(int vvv=0; vvv<st_centr; ++vvv)
+			for(unsigned vvv=0; vvv<st_centr; ++vvv)
 			{
 				deep=1;
 				qsize=1;
@@ -362,7 +362,7 @@ namespace gen
 						if(deep==out.size()) out.push_back(vector<int>(st_centr));
 						qsize=q.size();
 					}
-					for(int i=0; i<G[q.front()].size(); ++i)
+					for(unsigned i=0; i<G[q.front()].size(); ++i)
 					{
 						if(col[G[q.front()][i]]==-1)
 						{
@@ -375,11 +375,11 @@ namespace gen
 					--qsize;
 				}
 			}
-			for(int i=0; i<out.size(); ++i)
+			for(unsigned i=0; i<out.size(); ++i)
 			{
 				K1=K2=K3=0;
 				register long long tmp;
-				for(int j=0; j<st_centr; ++j)
+				for(unsigned j=0; j<st_centr; ++j)
 				{
 					tmp=out[i][j];
 					K1+=tmp;
@@ -499,7 +499,7 @@ namespace gen
 	string to_lower(const string& str)
 	{
 		string out;
-		for(int i=0; i<str.size(); ++i)
+		for(unsigned i=0; i<str.size(); ++i)
 			out+=tolower(str[i]);
 	return out;
 	}
