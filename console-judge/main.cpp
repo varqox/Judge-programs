@@ -31,7 +31,7 @@ class task
 	int check_on_test(const string& test, const string& exec, bool wrongs_info=false);
 
 public:
-	task(const string& str): _name(str), _total_time(0), _max_time(0)
+	task(const string& str): _name(str), _longest_test(), outf_name(), _test_names(), WA(), _total_time(0), _max_time(0)
 	{
 		if(*this->_name.rbegin()!='/') this->_name+='/';
 		// get name of temporary file

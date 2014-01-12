@@ -47,7 +47,7 @@ return w;
 namespace gen
 {
 	inline unsigned Ceil_to_power2(unsigned x)
-	{return (x&x-1 ? 1u<<(sizeof(unsigned)*8-__builtin_clz(x)):x);}
+	{return (x&(x-1) ? 1u<<(sizeof(unsigned)*8-__builtin_clz(x)):x);}
 
 	namespace KUR
 	{
@@ -69,6 +69,8 @@ namespace gen
 
 		class interval_tree
 		{
+			interval_tree(const interval_tree&): size(), t(){}
+			interval_tree& operator=(const interval_tree&){return *this;}
 		public:
 			unsigned size;
 			pair<int, int> *t;
@@ -338,6 +340,10 @@ namespace gen
 		int n;
 		vector<int> *G;
 
+		_HOT(const _HOT&): n(), G(), _a(), _b(), _n(){}
+		_HOT& operator=(const _HOT&){return *this;}
+		// _HOT(){}
+
 		long long get(unsigned centr)
 		{
 			vector<char> col(n+1, -1);
@@ -391,6 +397,7 @@ namespace gen
 		return ret;
 		}
 	public:
+		_HOT(): n(), G(), _a(), _b(), _n(){}
 		queue<int> _a, _b;
 		int _n;
 
@@ -420,7 +427,7 @@ namespace gen
 	void genHOT(fstream& in, fstream& out, int argc, const char** argv)
 	{
 		bool n_set=false;
-		int n;
+		int n=0;
 		string option, number;
 		for(int i=3; i<argc; ++i)
 		{

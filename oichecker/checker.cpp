@@ -228,7 +228,7 @@ namespace checker
 
 	void task::spr(const string& name, const string& exec, char task)
 	{
-		bool (*run_test)(bool);
+		bool (*run_test)(bool)=NULL;
 		if(task==0) run_test=run;
 		else if(task==1) run_test=runKLO;
 		total_time=max_time=0;
@@ -300,7 +300,7 @@ namespace checker
 		else if(argc==3) task::spr(string(argv[1]), string(argv[2]), task);
 		else
 		{
-			bool (*run_test)(bool);
+			bool (*run_test)(bool)=NULL;
 			if(task==0) run_test=task::run;
 			else if(task==1) run_test=task::runKLO;
 			total_time=max_time=0;
