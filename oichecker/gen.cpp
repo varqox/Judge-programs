@@ -74,7 +74,7 @@ namespace gen
 		public:
 			unsigned size;
 			pair<int, int> *t;
-			interval_tree(unsigned n): size(Ceil_to_power2(n)), t(new pair<int, int>[this->size<<1]){}
+			interval_tree(unsigned n): size(Ceil_to_power2(n)), t(new pair<int, int>[size<<1]){}
 			~interval_tree(){delete[] t;}
 			void init();
 			int getlider(unsigned, unsigned);
@@ -82,24 +82,24 @@ namespace gen
 
 		void interval_tree::init()
 		{
-			for(int i=this->size-1; i>0; --i)
+			for(int i=size-1; i>0; --i)
 			{
-				this->t[i]=this->t[i<<1];
-				merge(this->t[i], this->t[(i<<1)+1]);
+				t[i]=t[i<<1];
+				merge(t[i], t[(i<<1)+1]);
 			}
 		}
 
 		int interval_tree::getlider(unsigned begin, unsigned end)
 		{
-			begin+=this->size;
-			end+=this->size;
+			begin+=size;
+			end+=size;
 			pair<int, int> out;
-			merge(out, this->t[begin]);
-			if(begin!=end) merge(out, this->t[end]);
+			merge(out, t[begin]);
+			if(begin!=end) merge(out, t[end]);
 			while(begin>>1!=end>>1)
 			{
-				if(!(begin&1)) merge(out, this->t[begin+1]);
-				if(end&1) merge(out, this->t[end-1]);
+				if(!(begin&1)) merge(out, t[begin+1]);
+				if(end&1) merge(out, t[end-1]);
 				begin>>=1;
 				end>>=1;
 			}
