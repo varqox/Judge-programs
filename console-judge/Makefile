@@ -18,17 +18,20 @@ export LFLAGS = -Wall -Wextra -Wabi -Weffc++ -Wshadow -Wfloat-equal -Wno-unused-
 
 # Shell commands
 export MV = mv -f
-export CP = cp -f -r
+export CP = cp -rf
 export UPDATE = $(CP) -u
 export RM = rm -f
 export MKDIR = mkdir -p
 
-.PHONY: all clean
+.PHONY: all install clean
 
 all: judge
 
 judge: main.cpp
 	$(LINK) $^ $(LFLAGS) -o $@
+
+install:
+	$(CP) judge /usr/local/bin/
 
 clean:
 	$(RM) *.o
