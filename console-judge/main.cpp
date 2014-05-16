@@ -22,6 +22,27 @@ using namespace std;
 	{return !system(("stat "+name+" 2> /dev/null > /dev/null").c_str());}
 #endif
 
+string to_shell(const string& str)
+{
+	string out;
+	for(string::const_iterator i=str.begin(); i!=str.end(); ++i)
+	{
+		switch(*i)
+		{
+			case ' ': out+="\\ ";break;
+			case '(': out+="\\(";break;
+			case ')': out+="\\)";break;
+			case '&': out+="\\&";break;
+			case '>': out+="\\>";break;
+			case '<': out+="\\<";break;
+			case '*': out+="\\*";break;
+			case ';': out+="\\;";break;
+			default: out+=*i;
+		}
+	}
+return out;
+}
+
 class task
 {
 	string _name, _longest_test, outf_name;
@@ -31,7 +52,7 @@ class task
 	int check_on_test(const string& test, const string& exec, bool wrongs_info=false);
 
 public:
-	task(const string& str): _name(str), _longest_test(), outf_name(), _test_names(), WA(), _total_time(0), _max_time(0)
+	task(const string& str): _name(to_shell(str)), _longest_test(), outf_name(), _test_names(), WA(), _total_time(0), _max_time(0)
 	{
 		if(*_name.rbegin()!='/') _name+='/';
 		// get name of temporary file
@@ -96,7 +117,7 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 #ifdef WIN32
 	int ret=system((exec+" < \""+_name+test+".in\" > \""+outf_name+"\"").c_str());
 #else
-	int ret=system(("./"+exec+" < "+_name+test+".in > "+outf_name).c_str());
+	int ret=system(("./"+exec+" < "+to_shell(_name+test)+".in > "+outf_name).c_str());
 #endif
 	gettimeofday(&te, NULL);
 	double cl=(te.tv_sec+static_cast<double>(te.tv_usec)/1000000)-(ts.tv_sec+static_cast<double>(ts.tv_usec)/1000000);
