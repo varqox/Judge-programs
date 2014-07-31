@@ -10,6 +10,8 @@
 #include <cctype>
 #include <cmath>
 #include <deque>
+#include <unistd.h>
+#include <sys/wait.h>
 
 using namespace std;
 
@@ -115,9 +117,28 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 	timeval ts, te;
 	gettimeofday(&ts, NULL);
 #ifdef WIN32
-	int ret=system((exec+" < \""+_name+test+".in\" > \""+outf_name+"\"").c_str());
+	int ret=system((exec+" < \""+_name+test+".in\" > \""+outf_name+"\"").c_str()) >> 8;
 #else
-	int ret=system(("./"+exec+" < "+to_shell(_name+test)+".in > "+outf_name).c_str());
+	pid_t cpid;
+	if((cpid = fork()) == 0)
+	{
+		// Set up enviroment
+		freopen((_name+test+".in").c_str(), "r", stdin);
+		freopen(outf_name.c_str(), "w", stdout);
+
+		char *arg[] = {NULL};
+		execve(exec.c_str(), arg, arg);
+		exit(-1);
+	}
+	int ret;
+	waitpid(cpid, &ret, 0);
+	if(WIFEXITED(ret))
+		ret = WEXITSTATUS(ret);
+	else if(WIFSIGNALED(ret))
+		ret = WTERMSIG(ret) + 128;
+	else
+		// Shouldn't happen. Unknown status...
+		ret = EXIT_FAILURE;
 #endif
 	gettimeofday(&te, NULL);
 	double cl=(te.tv_sec+static_cast<double>(te.tv_usec)/1000000)-(ts.tv_sec+static_cast<double>(ts.tv_usec)/1000000);
@@ -140,7 +161,7 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 	}
 	if(ret!=0)
 	{
-		cout << test << ": Runtime error (returned value: " << (ret>>8) << ") time - " << fixed;
+		cout << test << ": Runtime error (returned value: " << ret << ") time - " << fixed;
 		cout.precision(3);
 		cout << cl << 's' << endl;
 		remove(outf_name.c_str());
