@@ -11,3 +11,8 @@
 *.lai
 *.la
 *.a
+
+# GNU Make dependences
+*.dep-s
+
+checker/chck
