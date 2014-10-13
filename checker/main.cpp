@@ -47,7 +47,7 @@ void problems() {
 }
 
 void help() {
-	printf("Available commands:\n  help                      display this help\n  problems                  display available problems\n  judge TAG EXEC [ARGS]...  judge EXEC in TAG problem\n  gen TAG [ARGS]...         generate tests for task TAG\n  genin TAG [ARGS]...       generate only in tests for task TAG\n  genout TAG FILE...        generate output file for input FILE in problem TAG\n");
+	printf("Available commands:\n  help                      display this help\n  problems                  display available problems\n  judge TAG EXEC [TEST_DIR] [TEST]...  judge EXEC in TAG problem, in TEST_DIR (default tests/TAG/), on tests TEST... (default all)\n  gen TAG [ARGS]...         generate tests for problem TAG\n  genin TAG [ARGS]...       generate only in tests for problem TAG\n  genout TAG FILE...        generate output file for input FILE in problem TAG\n\nDefault:\n  gen TAG [N]               generate N (default 0) tests for problem TAG\n\n");
 	for (size_t i = 0; i < problems_available_size; ++i)
 		printf("%s\n", problems_available[i]->help().c_str());
 }
@@ -71,7 +71,7 @@ void parse_line(const char* line) {
 		string tag = tolower(getNextArg(line, i, s));
 		bool tag_exists = false;
 		for (size_t j = 0; j < problems_available_size; ++j)
-			if(tolower(problems_available[j]->tag()) == tag) {
+			if (tolower(problems_available[j]->tag()) == tag) {
 				problems_available[j]->gen("tests/" + tag + "/", string(line + i, line + s));
 				tag_exists = true;
 				break;
@@ -83,7 +83,7 @@ void parse_line(const char* line) {
 		string tag = tolower(getNextArg(line, i, s));
 		bool tag_exists = false;
 		for (size_t j = 0; j < problems_available_size; ++j)
-			if(tolower(problems_available[j]->tag()) == tag) {
+			if (tolower(problems_available[j]->tag()) == tag) {
 				problems_available[j]->gen("tests/" + tag + "/", string(line + i, line + s), true);
 				tag_exists = true;
 				break;
@@ -95,7 +95,7 @@ void parse_line(const char* line) {
 		string tag = tolower(getNextArg(line, i, s));
 		bool tag_exists = false;
 		for (size_t j = 0; j < problems_available_size; ++j)
-			if(tolower(problems_available[j]->tag()) == tag) {
+			if (tolower(problems_available[j]->tag()) == tag) {
 				string exec = getNextArg(line, i, s);
 				Problem::judge(problems_available[j], exec, string(line + i, line + s));
 				tag_exists = true;
@@ -108,7 +108,7 @@ void parse_line(const char* line) {
 		string tag = tolower(getNextArg(line, i, s));
 		bool tag_exists = false;
 		for (size_t j = 0; j < problems_available_size; ++j)
-			if(tolower(problems_available[j]->tag()) == tag) {
+			if (tolower(problems_available[j]->tag()) == tag) {
 				string test_in, test_out;
 				while (test_in = getNextArg(line, i, s), test_in.size()) {
 					if (file_exists(test_in)) {
@@ -154,7 +154,7 @@ int main() {
 	ssize_t read;
 	printf("%s", prompt);
 	while ((read = getline(&line, &n, stdin)) != -1) {
-		while(read-1 >= 0 && (line[read-1] == '\n' || line[read-1] == '\r'))
+		while (read-1 >= 0 && (line[read-1] == '\n' || line[read-1] == '\r'))
 			line[--read] = '\0';
 		parse_line(line);
 		printf("%s", prompt);

@@ -15,6 +15,12 @@
 
 #define eprintf(args...) fprintf(stderr, args)
 
+#ifdef DEBUG
+# define D(...) __VA_ARGS__
+#else
+# define D(...)
+#endif
+
 using std::string;
 
 struct CompareTestName {
@@ -36,7 +42,7 @@ struct CompareTestName {
 	}
 };
 
-int Problem::JudgeClass::checkOnTest(Problem* pr) {
+int Problem::JudgeClass::checkOnTest(Problem* pr, bool display_errors) {
 	// Runtime
 	timeval ts, te;
 	gettimeofday(&ts, NULL);
@@ -44,7 +50,7 @@ int Problem::JudgeClass::checkOnTest(Problem* pr) {
 	int ret = system(("\"" << exec << "\" < \"" + inFile_ + "\" > \""+ ansFile_ +"\"").c_str()) >> 8;
 #else
 	pid_t cpid;
-	if((cpid = fork()) == 0)
+	if ((cpid = fork()) == 0)
 	{
 		// Set up enviroment
 		freopen((inFile_).c_str(), "r", stdin);
@@ -56,9 +62,9 @@ int Problem::JudgeClass::checkOnTest(Problem* pr) {
 	}
 	int ret;
 	waitpid(cpid, &ret, 0);
-	if(WIFEXITED(ret))
+	if (WIFEXITED(ret))
 		ret = WEXITSTATUS(ret);
-	else if(WIFSIGNALED(ret))
+	else if (WIFSIGNALED(ret))
 		ret = WTERMSIG(ret) + 128;
 	else
 		// Shouldn't happen. Unknown status...
@@ -82,12 +88,15 @@ int Problem::JudgeClass::checkOnTest(Problem* pr) {
 	switch (pr->checker(inFile_, outFile_, ansFile_, &line, &errors)) {
 		case 1:
 			printf("WA  %.3lfs -> line: %u\n", cl, line);
-			// printf("%s\n", errors.c_str());
-			return 1;
+			if (display_errors)
+				printf("%s\n", errors.c_str());
 			remove(ansFile_.c_str());
+			return 1;
 			break;
 		case 2:
 			printf("???  %.3lfs -> Checker error\n", cl);
+			if (display_errors)
+				printf("%s\n", errors.c_str());
 			remove(ansFile_.c_str());
 			return 3;
 			break;
@@ -100,7 +109,6 @@ int Problem::JudgeClass::checkOnTest(Problem* pr) {
 
 void Problem::JudgeClass::operator()(Problem* pr, const string& exec, const string& args) {
 	double total_time = 0, max_time = 0;
-	size_t tmp_i = 0;
 	exec_ = exec;
 
 	// Check if exec exists
@@ -121,17 +129,55 @@ void Problem::JudgeClass::operator()(Problem* pr, const string& exec, const stri
 
 	std::vector<string> wrong_tests;
 	std::vector<string> tests;
-	string max_time_test, test_dir = getNextArg(args.c_str(), tmp_i, args.size());
+	ArgParser ap(args);
+	string max_time_test, test_dir = ap.getNextArg();
+	bool is_default = test_dir.empty();
 	if (test_dir.empty())
 		test_dir = "tests/" + tolower(pr->tag());
 	if (*test_dir.rbegin() != '/')
 		test_dir += '/';
-	eprintf("test_dir: %s\n", test_dir.c_str());
+	D (eprintf("test_dir: %s\n", test_dir.c_str());)
 
 	DIR* dir;
 	dirent* test;
 	string file_name;
-	if ((dir = opendir(test_dir.c_str()))) {
+try_open_dir:
+	dir = opendir(test_dir.c_str());
+	if (dir == NULL) {
+		eprintf("Cannot open directory '%s'\n", test_dir.c_str());
+		if (!is_default) {
+			is_default = true;
+			test_dir = "tests/" + tolower(pr->tag()) + "/";
+			eprintf("Try default directory '%s'\n", test_dir.c_str());
+			ap.reset();
+			goto try_open_dir;
+		} else
+			return;
+	}
+
+	// Check if tests are specified
+	file_name = ap.getNextArg();
+	if (file_name.size()) {
+		do {
+			if (!file_exists(inFile_ = test_dir + file_name + ".in"))
+				eprintf("No sych file: '%s'\n", inFile_.c_str());
+			else if (!file_exists(outFile_ = test_dir + file_name + ".out"))
+				eprintf("No sych file: '%s'\n", outFile_.c_str());
+			else {
+				printf("%s: ", file_name.c_str());
+				fflush(stdout);
+				if (checkOnTest(pr, true) != 0)
+					wrong_tests.push_back(file_name);
+
+				total_time += runtime_;
+				if (runtime_ > max_time) {
+					max_time = runtime_;
+					max_time_test = file_name;
+				}
+			}
+			file_name = ap.getNextArg();
+		} while (file_name.size());
+	} else {
 		while ((test = readdir(dir)))
 			if (test->d_type == DT_REG) {
 				file_name = test->d_name;
@@ -141,30 +187,29 @@ void Problem::JudgeClass::operator()(Problem* pr, const string& exec, const stri
 				else if (len > 4 && file_name.compare(len-4, 4, ".out") == 0)
 					tests.push_back(file_name.substr(0, len-4));
 			}
-	} else
-		eprintf("Cannot opend directory '%s'\n", test_dir.c_str());
 
-	sort(tests.begin(), tests.end(), CompareTestName());
+		sort(tests.begin(), tests.end(), CompareTestName());
 
-	for (size_t i = 0; i < tests.size(); ++i)
-		if (i + 1 < tests.size() && tests[i] == tests[i+1]) {
-			// We have .in and .out file
-			inFile_ = test_dir + tests[i] + ".in";
-			outFile_ = test_dir + tests[i] + ".out";
+		for (size_t i = 0; i < tests.size(); ++i)
+			if (i + 1 < tests.size() && tests[i] == tests[i+1]) {
+				// We have .in and .out file
+				inFile_ = test_dir + tests[i] + ".in";
+				outFile_ = test_dir + tests[i] + ".out";
 
-			printf("%s: ", tests[i].c_str());
-			fflush(stdout);
-			if (checkOnTest(pr) != 0)
-				wrong_tests.push_back(tests[i]);
+				printf("%s: ", tests[i].c_str());
+				fflush(stdout);
+				if (checkOnTest(pr) != 0)
+					wrong_tests.push_back(tests[i]);
 
-			total_time += runtime_;
-			if (runtime_ > max_time) {
-				max_time = runtime_;
-				max_time_test = tests[i];
+				total_time += runtime_;
+				if (runtime_ > max_time) {
+					max_time = runtime_;
+					max_time_test = tests[i];
+				}
+
+				++i;
 			}
-
-			++i;
-		}
+	}
 
 	if (wrong_tests.size()) {
 		printf("Wrong test:\n%s", wrong_tests.front().c_str());

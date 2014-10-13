@@ -8,7 +8,7 @@ class Problem::JudgeClass {
 private:
 	std::string inFile_, outFile_, exec_, ansFile_; // in, out - test files, ansFile_ - output file of exec
 	double runtime_;
-	int checkOnTest(Problem* pr);
+	int checkOnTest(Problem* pr, bool display_errors = false);
 
 public:
 	explicit JudgeClass(const std::string& s) : inFile_(), outFile_(), exec_(), ansFile_(s), runtime_(0) {

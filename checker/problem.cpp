@@ -6,6 +6,14 @@
 #include <cstdio>
 #include <cstdlib>
 
+#define eprintf(args...) fprintf(stderr, args)
+
+#ifdef DEBUG
+# define D(...) __VA_ARGS__
+#else
+# define D(...)
+#endif
+
 using std::string;
 using std::deque;
 
@@ -47,14 +55,18 @@ int Problem::checker(const string& input, const string& output, const string& an
 	return 0; // OK
 }
 
-
 int Problem::gen(const string& path, const std::string& args, bool in_only) {
 	(void)(args); // Disable -Wunused-parameter
 	int n = 0;
-	sscanf(args.c_str(), "%i", &n);
-	printf("'%s'\n", args.c_str());
+	ArgParser ap(args);
+	string sn = ap.getNextArg();
+	if (isNum(sn))
+		n = atoi(sn.c_str());
+	else
+		eprintf("'%s' is not a number\n", sn.c_str());
+	D (printf("'%s'\n", args.c_str());)
 	printf("Cleaning directory...");
-	if(0 != system(("rm -rf '" + path + "'; mkdir -p '" + path +"'").c_str()))
+	if (0 != system(("rm -rf '" + path + "'; mkdir -p '" + path +"'").c_str()))
 		return 1;
 	printf(" Done.\n");
 	int seed = rand(), val = rand() % 1024;

@@ -1,6 +1,8 @@
+#include "functions.h"
 #include <string>
 #include <algorithm>
 #include <cstdio>
+#include <cstring>
 
 using std::string;
 
@@ -55,3 +57,31 @@ bool file_exists(const std::string& file) {
 	}
 	return false;
 }
+
+bool isNum(const std::string& s) {
+	if (s.empty())
+		return false;
+	for (size_t i = 0, len = s.size(); i < len; ++i)
+		if (!isdigit(s[i]))
+			return false;
+	return true;
+}
+
+ArgParser::ArgParser(const std::string& s) : pos_(0), size_(s.size()), arg_(new char[size_ + 1]) {
+	strcpy(arg_, s.c_str());
+}
+ArgParser::ArgParser(const ArgParser& ap) : pos_(0), size_(ap.size_), arg_(new char[size_ + 1]) {
+	strcpy(arg_, ap.arg_);
+}
+
+ArgParser& ArgParser::operator=(const ArgParser& ap) {
+	if (arg_)
+		delete[] arg_;
+	pos_ = 0;
+	size_ = ap.size_;
+	arg_ = new char[size_ + 1];
+	strcpy(arg_, ap.arg_);
+	return *this;
+}
+
+string ArgParser::getNextArg() { return ::getNextArg(arg_, pos_, size_); }
