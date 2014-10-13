@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <cstring>
 
 #define eprintf(args...) fprintf(stderr, args)
 
@@ -156,9 +157,12 @@ int main() {
 	while ((read = getline(&line, &n, stdin)) != -1) {
 		while (read-1 >= 0 && (line[read-1] == '\n' || line[read-1] == '\r'))
 			line[--read] = '\0';
+		if (strcmp(line, "exit") == 0)
+			break;
 		parse_line(line);
 		printf("%s", prompt);
 	}
+	printf("\n");
 #endif
 	return 0;
 }

@@ -4,7 +4,7 @@ PHONY := all
 all: chck
 
 chck: problem.o main.o problems_available.o judge.o functions.o
-ifeq ($(shell ldconfig -p | grep libreadline > /dev/null; echo $$?), 0)
+ifeq ($(shell ls /usr/include/readline > /dev/null 2> /dev/null; echo $$?), 0)
 	$(Q)$(call P,LINK,$@)$(CXX) $^ $(LFLAGS) -o $@ -lreadline
 
 main.o:
