@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#include <dirent.h>
 
 using std::string;
 
@@ -56,6 +57,19 @@ bool file_exists(const std::string& file) {
 		return true;
 	}
 	return false;
+}
+
+int remove_r(const char* path) {
+	DIR* directory;
+	dirent* current_file;
+	string tmp_dir_path = path;
+	if (*tmp_dir_path.rbegin() != '/')
+		tmp_dir_path += '/';
+	if ((directory = opendir(path)))
+	while ((current_file = readdir(directory)))
+		if (strcmp(current_file->d_name, ".") && strcmp(current_file->d_name, ".."))
+			remove_r((tmp_dir_path + current_file->d_name).c_str());
+	return remove(path);
 }
 
 bool isNum(const std::string& s) {

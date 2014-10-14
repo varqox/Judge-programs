@@ -25,7 +25,7 @@ endif
 PHONY := all
 all:
 	@printf "CC -> $(CC)\nCXX -> $(CXX)\n"
-	$(Q)$(MAKE) $(MFLAGS) -C checker/
+	$(Q)$(MAKE) $(MFLAGS) -C checker/ -f Makefile2
 	@printf "\033[;32mBuild finished\033[0m\n"
 
 
@@ -37,15 +37,15 @@ debug: override CXXFLAGS = $(WARNING_OPTIONS) -g -c
 debug: override LFLAGS = $(WARNING_OPTIONS) -g
 debug:
 	@printf "CC -> $(CC)\nCXX -> $(CXX)\n"
-	$(Q)$(MAKE) $(MFLAGS) -C checker/
+	$(Q)$(MAKE) $(MFLAGS) -C checker/ -f Makefile2
 	@printf "\033[;32mBuild finished\033[0m\n"
 
 PHONY += clean
 clean:
-	@$(MAKE) $(MFLAGS) clean -C checker/
+	@$(MAKE) $(MFLAGS) clean -C checker/ -f Makefile2
 
 PHONY += mrproper
 mrproper:
-	@$(MAKE) $(MFLAGS) mrproper -C checker/
+	@$(MAKE) $(MFLAGS) mrproper -C checker/ -f Makefile2
 
 .PHONY: $(PHONY)

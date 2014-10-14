@@ -6,6 +6,10 @@
 #include <string>
 #include <cstring>
 
+#ifdef WIN32
+# include <iostream>
+#endif
+
 #define eprintf(args...) fprintf(stderr, args)
 
 using std::string;
@@ -132,6 +136,7 @@ void parse_line(const char* line) {
 }
 
 int main() {
+	printf("Type help for help\n");
 #ifdef USE_READLINE
 	fd_set fds;
 	int r;
@@ -149,6 +154,16 @@ int main() {
 		if (FD_ISSET(fileno(rl_instream), &fds))
 			rl_callback_read_char();
 	}
+#elif defined(WIN32)
+	string line;
+	printf("%s", prompt);
+	fflush(stdout);
+	while (getline(std::cin, line) && line != "exit") {
+		parse_line(line.c_str());
+		printf("%s", prompt);
+		fflush(stdout);
+	}
+	printf("\n");
 #else
 	char *line = NULL;
 	size_t n = 0;

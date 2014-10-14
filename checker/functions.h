@@ -11,6 +11,7 @@ std::string tolower(std::string str);
 std::string myto_string(long long a);
 void remove_trailing_spaces(std::string& s);
 bool file_exists(const std::string& file);
+int remove_r(const char* path);
 bool isNum(const std::string& s);
 
 class ArgParser {

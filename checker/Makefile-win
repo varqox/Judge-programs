@@ -1,0 +1,47 @@
+export
+
+# Extra options to compile project with
+EXTRA_OPTIONS = -O2
+
+# Extra options to link project with
+EXTRA_LD_OPTIONS = -s -O2 -static
+
+# Warnings options to compile project with
+WARNING_OPTIONS = -Wall -Wextra -Wabi -Weffc++ -Wshadow -Wfloat-equal -Wno-unused-result
+
+CFLAGS = $(WARNING_OPTIONS) $(EXTRA_OPTIONS) -c
+CXXFLAGS = $(CFLAGS)
+LFLAGS = $(WARNING_OPTIONS) $(EXTRA_LD_OPTIONS)
+
+ifeq ($(VERBOSE),1)
+	Q :=
+	P =
+else
+	Q :=
+	P =
+endif
+
+PHONY := all
+all: chck.exe
+
+chck.exe: problem.o main.o problems_available.o judge.o functions.o
+	$(Q)$(CXX) $^ $(LFLAGS) -o $@
+	@echo Build finished
+
+PHONY += clean
+clean:
+	$(RM)
+
+PHONY += mrproper
+mrproper: clean
+	$(RM)
+
+PHONY += force
+force:
+
+.PHONY: $(PHONY)
+
+%.o: %.cpp force
+	$(Q)$(CXX) $< $(CXXFLAGS) -o $@
+	
+.PHONY: $(PHONY)

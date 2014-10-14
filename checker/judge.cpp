@@ -47,7 +47,7 @@ int Problem::JudgeClass::checkOnTest(Problem* pr, bool display_errors) {
 	timeval ts, te;
 	gettimeofday(&ts, NULL);
 #ifdef WIN32
-	int ret = system(("\"" << exec << "\" < \"" + inFile_ + "\" > \""+ ansFile_ +"\"").c_str()) >> 8;
+	int ret = system(("\"" << exec_ << "\" < \"" + inFile_ + "\" > \""+ ansFile_ +"\"").c_str()) >> 8;
 #else
 	pid_t cpid;
 	if ((cpid = fork()) == 0)
@@ -179,7 +179,7 @@ try_open_dir:
 		} while (file_name.size());
 	} else {
 		while ((test = readdir(dir)))
-			if (test->d_type == DT_REG) {
+			if (file_exists(test_dir + test->d_name)) {
 				file_name = test->d_name;
 				size_t len = file_name.size();
 				if (len > 3 && file_name.compare(len-3, 3, ".in") == 0)

@@ -6,6 +6,22 @@
 #include <cstdio>
 #include <cstdlib>
 
+#ifdef WIN32
+# include <direct.h>
+
+std::string convertToWinPath(std::string s) {
+	for (size_t i = 0; i < s.size(); ++i)
+		if (s[i] == '/')
+			s[i] = '\\';
+	return s;
+}
+
+inline bool path_exists(const std::string& path) {
+	return !system(("IF EXIST \"" + path + "\" (EXIT 0) ELSE (EXIT 1)").c_str());
+}
+
+#endif
+
 #define eprintf(args...) fprintf(stderr, args)
 
 #ifdef DEBUG
@@ -66,8 +82,19 @@ int Problem::gen(const string& path, const std::string& args, bool in_only) {
 		eprintf("'%s' is not a number\n", sn.c_str());
 	D (printf("'%s'\n", args.c_str());)
 	printf("Cleaning directory...");
-	if (0 != system(("rm -rf '" + path + "'; mkdir -p '" + path +"'").c_str()))
+#ifdef WIN32
+	remove_r(path.c_str());
+	system(("mkdir \"" + convertToWinPath(path) + "\" > NUL 2> NUL").c_str());
+	if (!path_exists(path)) {
+		printf(" Failed.\n");
 		return 1;
+	}
+#else
+	if (0 != system(("rm -rf '" + path + "'; mkdir -p '" + path +"'").c_str())) {
+		printf(" Failed.\n");
+		return 1;
+	}
+#endif
 	printf(" Done.\n");
 	int seed = rand(), val = rand() % 1024;
 	string test;

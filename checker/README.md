@@ -1,11 +1,55 @@
+# What is checker
+
+>>> TODO <<<
+
+# Building
+
+## Linux
+If you want better command line install GNU Readline library (on Ubuntu `sudo apt-get install libreadline-dev`).
+
+1. Clone Judge-programs repository:
+
+  ```sh
+  git clone https://github.com/krzyk240/Judge-programs
+  cd Judge-programs/checker
+  ```
+
+2. Build checker
+
+  ```sh
+  make
+  ```
+Now you can run checker:
+  ```sh
+  chck
+  ```
+
+## Windows
+
+1. Clone this repository where you want checker to live (you can [download it as zip](https://github.com/krzyk240/Judge-programs/archive/master.zip)).
+
+2. Download [compile.bat](https://github.com/krzyk240/Judge-programs/releases/download/vWIN/compile.bat) and place it to `checker/` directory (this in which are files such as main.cpp problem.cpp)
+
+3. Get the compiler - there are two ways:
+ - Download and install [TDM-GCC-32](http://sourceforge.net/projects/tdm-gcc/files/TDM-GCC%20Installer/tdm-gcc-4.8.1-3.exe/download)
+ - Download [TDM-GCC-32.zip](https://github.com/krzyk240/Judge-programs/releases/download/vWIN/TDM-GCC-32.zip) or [TDM-GCC-32.7z](https://github.com/krzyk240/Judge-programs/releases/download/vWIN/TDM-GCC-32.7z) and extract to the same directory where you have placed `compile.bat`
+
+4. Run script `compile.bat`
+
+Now you can run checker by executing file `chck.exe`
+
 # Adding problem
+
 To add problem to checker you only have to write class which inherit Problem class and add it to problems_available array in problems_available.cpp. Let's see an example:
+
 Reaplace part:
 ```C++
 Problem* problems_available[] = {
 	};
 ```
+
 in problems_available.cpp with:
+
 ```C++
 class EasyProblem : public Problem {
 public:
@@ -44,8 +88,11 @@ Problem* problems_available[] = {
 	new EasyProblem // Easy problem
 	};
 ```
-In Easy problem you have to read a number and write it. Now you can build checker. (See [How to build](#build))
+
+In Easy problem you have to read a number and write it. Now you can build checker. (See [How to build](#building))
+
 Let's see more complex example:
+
 ```C++
 #include <fstream>
 
