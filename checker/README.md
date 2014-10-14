@@ -47,12 +47,13 @@ Problem* problems_available[] = {
 In Easy problem you have to read a number and write it. Now you can build checker. (See [How to build](#build))
 Let's see more complex example:
 ```C++
-
 #include <fstream>
 
 // For given number n (0 < n < 10^9) you have to find two numbers 0 < a, b < 10^18 for which GCD(a, b) = n
 class ComplexProblem : public Problem {
 public:
+	ComplexProblem(): max_n_(0) {}
+
 	string name() const { return "Complex"; }
 
 	string tag() const { return "COM"; }
@@ -114,7 +115,7 @@ public:
 		while (x = ap.getNextArg(), x.size()) {
 			if (x[0] == 'n') {
 				x.erase(0, 1);
-				if (isPositiveNum(x) && x.size() < 10 && atoull(x) != 0) {
+				if (isPositiveNum(x) && x.size() < 10 && atoull(x) > 1) {
 					n = x;
 				}
 			} else if (isPositiveNum(x))
