@@ -1,11 +1,17 @@
 #include "functions.h"
 #include <string>
+#include <map>
+#include <vector>
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <dirent.h>
 
+#define eprintf(args...) fprintf(stderr, args)
+
 using std::string;
+using std::map;
+using std::vector;
 
 string getNextArg(const char* line, size_t& i, size_t s) {
 	string res;
@@ -32,15 +38,28 @@ string tolower(string str) {
 
 string myto_string(long long a) {
 	string w;
+	bool minus = false;
+	if (a < 0) {
+		minus = true;
+		a = -a;
+	}
 	while (a > 0) {
 		w += static_cast<char>(a % 10 + '0');
 		a /= 10;
 	}
+	if (minus)
+		w += "-";
 	if (w.empty())
 		w = "0";
 	else
 		std::reverse(w.begin(), w.end());
 return w;
+}
+
+string dmyto_string(double a) {
+	char buffer[256];
+	sprintf(buffer, "%.1lf", a);
+return string(buffer);
 }
 
 void remove_trailing_spaces(string& s) {
@@ -99,3 +118,124 @@ ArgParser& ArgParser::operator=(const ArgParser& ap) {
 }
 
 string ArgParser::getNextArg() { return ::getNextArg(arg_, pos_, size_); }
+
+bool isPositiveNum(const string& s) {
+	for (size_t i = 0; i < s.size(); ++i)
+		if (!isdigit(s[i]))
+			return false;
+	return true;
+}
+
+// Convert string to unsigned long long
+unsigned long long atoull(const string& s) {
+	unsigned long long res = 0;
+	for (size_t i = 0; i < s.size(); ++i) {
+		res *= 10;
+		res += s[i] - '0';
+	}
+	return res;
+}
+
+bool isNum(const string& s, long long down, long long up) {
+	if (isPositiveNum(s)) {
+		long long x = atoull(s);
+		return down <= x && x <= up;
+	}
+	return false;
+}
+
+void try_set(std::pair<int, int>& p, const string& oper, const string& val) {
+	if (oper == "<") {
+		if (isNum(val, p.first + 1, p.second + 1) && p.first <= static_cast<int>(atoull(val) - 1))
+			p.second = atoull(val) - 1;
+		else
+			eprintf("Wrong value: '%s'\n", val.c_str());
+	}
+	else if (oper == "<=") {
+		if (isNum(val, p.first, p.second) && p.first <= static_cast<int>(atoull(val)))
+			p.second = atoull(val);
+		else
+			eprintf("Wrong value: '%s'\n", val.c_str());
+	} else if (oper == ">") {
+		if (isNum(val, p.first - 1, p.second - 1) && p.second >= static_cast<int>(atoull(val) + 1))
+			p.first = atoull(val) + 1;
+		else
+			eprintf("Wrong value: '%s'\n", val.c_str());
+	}  else if (oper == ">=") {
+		if (isNum(val, p.first, p.second) && p.second >= static_cast<int>(atoull(val)))
+			p.first = atoull(val);
+		else
+			eprintf("Wrong value: '%s'\n", val.c_str());
+	} else if (oper == "=") {
+		if (isNum(val, p.first, p.second))
+			p.first = p.second = atoull(val);
+		else
+			eprintf("Wrong value: '%s'\n", val.c_str());
+	} else
+		eprintf("Unknown operator: '%s'\n", oper.c_str());
+}
+
+bool isOperator(const string& s) {
+	return s == "<" || s == ">" || s == "<=" || s == ">=" || s == "="; // We don't use !=
+}
+
+string parseArgLimits(const string& args, map<string, std::pair<int,int> >& limits) {
+	string other_args, new_args;
+	new_args.reserve(args.size()); // For more efficiency
+	for (size_t i = 0; i < args.size(); ++i) {
+		if (args[i] == '<' || args[i] == '>') {
+				new_args += string(" ") + args[i];
+			if (i < args.size() && args[i+1] == '=') {
+				new_args += "=";
+				++i;
+			}
+			new_args += " ";
+		} else if (args[i] == '=')
+			new_args += string(" ") + args[i] + " ";
+		else
+			new_args += args[i];
+	}
+	ArgParser ap(new_args);
+	// Parsing arguments
+	string x;
+	vector<string> arg_arr;
+	while (x = ap.getNextArg(), x.size())
+		arg_arr.push_back(x);
+	for (size_t i = 0, len = arg_arr.size(); i < len; ++i) {
+		// If next arg is an operator
+		if (i + 1 < len && isOperator(arg_arr[i+1]))
+			continue;
+		// If current arg is an operator and it makes an expression
+		if (i > 0 && i + 1 < len && isOperator(arg_arr[i])) {
+			string *var, *value;
+			if (isPositiveNum(arg_arr[i-1])) {
+				// We need to reverse operators
+				if (arg_arr[i][0] == '<')
+					arg_arr[i][0] = '>';
+				else if (arg_arr[i][0] == '>')
+					arg_arr[i][0] = '<';
+				value = &arg_arr[i-1];
+				var = &arg_arr[i+1];
+			} else {
+				var = &arg_arr[i-1];
+				value = &arg_arr[i+1];
+			}
+			// If variable exists
+			if (limits.find(*var) != limits.end())
+				try_set(limits[*var], arg_arr[i], *value);
+			else
+				eprintf("Unknown variable: '%s'\n", var->c_str());
+			++i;
+		} else {
+			other_args += arg_arr[i];
+			other_args += ' ';
+		}
+	}
+	return other_args;
+}
+
+void printLimits(FILE* stream, const map<string, std::pair<int,int> >& limits) {
+	fprintf(stream, "Ranges:\n");
+	for (typeof(limits.begin()) i = limits.begin(); i != limits.end(); ++i)
+		fprintf(stream, " %s -> [%i, %i]\n", i->first.c_str(), i->second.first, i->second.second);
+}

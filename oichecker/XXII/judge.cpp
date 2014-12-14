@@ -187,20 +187,20 @@ try_open_dir:
 		sort(tests.begin(), tests.end(), CompareTestName());
 
 		for (size_t i = 0; i < tests.size(); ++i) {
-				// We have .in and .out file
-				inFile_ = test_dir + tests[i] + ".in";
-				outFile_ = test_dir + tests[i] + ".out";
+			// We have .in and may .out file
+			inFile_ = test_dir + tests[i] + ".in";
+			outFile_ = test_dir + tests[i] + ".out";
 
-				printf("%s: ", tests[i].c_str());
-				fflush(stdout);
-				if (checkOnTest(pr) != 0)
-					wrong_tests.push_back(tests[i]);
+			printf("%s: ", tests[i].c_str());
+			fflush(stdout);
+			if (checkOnTest(pr) != 0)
+				wrong_tests.push_back(tests[i]);
 
-				total_time += runtime_;
-				if (runtime_ > max_time) {
-					max_time = runtime_;
-					max_time_test = tests[i];
-				}
+			total_time += runtime_;
+			if (runtime_ > max_time) {
+				max_time = runtime_;
+				max_time_test = tests[i];
+			}
 		}
 	}
 

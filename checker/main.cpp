@@ -3,8 +3,8 @@
 #include "functions.h"
 #include <cstdio>
 #include <cstdlib>
-#include <string>
 #include <cstring>
+#include <string>
 
 #ifdef WIN32
 # include <iostream>
@@ -52,7 +52,7 @@ void problems() {
 }
 
 void help() {
-	printf("Available commands:\n  help                      display this help\n  problems                  display available problems\n  judge TAG EXEC [TEST_DIR] [TEST]...  judge EXEC in TAG problem, in TEST_DIR (default tests/TAG/), on tests TEST... (default all)\n  gen TAG [ARGS]...         generate tests for problem TAG\n  genin TAG [ARGS]...       generate only in tests for problem TAG\n  genout TAG FILE...        generate output file for input FILE in problem TAG\n\nDefault:\n  gen TAG [N]               generate N (default 0) tests for problem TAG\n\n");
+	printf("Available commands:\n  help                      display this help\n  problems                  display available problems\n  judge TAG EXEC [TEST_DIR] [TEST]...  judge EXEC in TAG problem, in TEST_DIR (default tests/TAG/), on tests TEST... (default all)\n  gen TAG [ARGS]...         generate tests for problem TAG\n  genin TAG [ARGS]...       generate only in tests for problem TAG\n  genout TAG FILE...        generate output file for input FILE in problem TAG\n\nDefault:\n  gen TAG [N]               generate N (default 0) tests for problem TAG\n\nUsing comparisions:\n  You can use: 'n < A' or 'A < n' or 'A = n' or 'A < n <= B' or 'n > A'... (A, B are numbers) you don't have to use spaces between expressions e.g. 'n<1 m>2 x=4', but expression syntax is 'VAR OPER N' or 'N OPER VAR' (VAR - variable name, OPER - operator ('<', '>', '<=', '>=' or '='), N - number)\n\n");
 	for (size_t i = 0; i < problems_available_size; ++i)
 		printf("%s\n", problems_available[i]->help().c_str());
 }

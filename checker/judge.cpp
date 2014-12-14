@@ -47,7 +47,7 @@ int Problem::JudgeClass::checkOnTest(Problem* pr, bool display_errors) {
 	timeval ts, te;
 	gettimeofday(&ts, NULL);
 #ifdef WIN32
-	int ret = system(("\"" << exec_ << "\" < \"" + inFile_ + "\" > \""+ ansFile_ +"\"").c_str()) >> 8;
+	int ret = system((exec_ + " < " + inFile_ + " > " + ansFile_).c_str()) >> 8;
 #else
 	pid_t cpid;
 	if ((cpid = fork()) == 0)
@@ -160,9 +160,7 @@ try_open_dir:
 	if (file_name.size()) {
 		do {
 			if (!file_exists(inFile_ = test_dir + file_name + ".in"))
-				eprintf("No sych file: '%s'\n", inFile_.c_str());
-			else if (!file_exists(outFile_ = test_dir + file_name + ".out"))
-				eprintf("No sych file: '%s'\n", outFile_.c_str());
+				eprintf("No such file: '%s'\n", inFile_.c_str());
 			else {
 				printf("%s: ", file_name.c_str());
 				fflush(stdout);
@@ -184,31 +182,26 @@ try_open_dir:
 				size_t len = file_name.size();
 				if (len > 3 && file_name.compare(len-3, 3, ".in") == 0)
 					tests.push_back(file_name.substr(0, len-3));
-				else if (len > 4 && file_name.compare(len-4, 4, ".out") == 0)
-					tests.push_back(file_name.substr(0, len-4));
 			}
 
 		sort(tests.begin(), tests.end(), CompareTestName());
 
-		for (size_t i = 0; i < tests.size(); ++i)
-			if (i + 1 < tests.size() && tests[i] == tests[i+1]) {
-				// We have .in and .out file
-				inFile_ = test_dir + tests[i] + ".in";
-				outFile_ = test_dir + tests[i] + ".out";
+		for (size_t i = 0; i < tests.size(); ++i) {
+			// We have .in and may .out file
+			inFile_ = test_dir + tests[i] + ".in";
+			outFile_ = test_dir + tests[i] + ".out";
 
-				printf("%s: ", tests[i].c_str());
-				fflush(stdout);
-				if (checkOnTest(pr) != 0)
-					wrong_tests.push_back(tests[i]);
+			printf("%s: ", tests[i].c_str());
+			fflush(stdout);
+			if (checkOnTest(pr) != 0)
+				wrong_tests.push_back(tests[i]);
 
-				total_time += runtime_;
-				if (runtime_ > max_time) {
-					max_time = runtime_;
-					max_time_test = tests[i];
-				}
-
-				++i;
+			total_time += runtime_;
+			if (runtime_ > max_time) {
+				max_time = runtime_;
+				max_time_test = tests[i];
 			}
+		}
 	}
 
 	if (wrong_tests.size()) {

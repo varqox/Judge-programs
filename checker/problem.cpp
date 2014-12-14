@@ -82,6 +82,7 @@ int Problem::gen(const string& path, const std::string& args, bool in_only) {
 		eprintf("'%s' is not a number\n", sn.c_str());
 	D (printf("'%s'\n", args.c_str());)
 	printf("Cleaning directory...");
+	fflush(stdout);
 #ifdef WIN32
 	remove_r(path.c_str());
 	system(("mkdir \"" + convertToWinPath(path) + "\" > NUL 2> NUL").c_str());
@@ -102,10 +103,15 @@ int Problem::gen(const string& path, const std::string& args, bool in_only) {
 		test = path;
 		test += myto_string(i);
 		printf("%i: ", i);
-		if (0 != genin(test + ".in", seed += val))
+		fflush(stdout);
+		if (0 != genin(test + ".in", seed += val)) {
+			printf("failed -> in\n");
 			return 2;
-		if (!in_only && 0 != genout(test + ".in", test + ".out"))
+		}
+		if (!in_only && 0 != genout(test + ".in", test + ".out")) {
+			printf("failed -> out\n");
 			return 3;
+		}
 		printf("generated\n");
 	}
 	return 0;

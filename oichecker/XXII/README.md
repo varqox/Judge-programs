@@ -45,9 +45,9 @@ protected:
 	int genin(const string& file, int seed) {
 		srand(seed);
 		FILE *f = fopen(file.c_str(), "w");
-		int n = 1 + rand() % 1000000;
 		if (f == NULL)
 			return 1;
+		int n = 1 + rand() % 1000000;
 		fprintf(f, "%i\n", n);
 		fclose(f);
 		return 0;

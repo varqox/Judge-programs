@@ -104,7 +104,7 @@ int Problem::gen(const string& path, const std::string& args, bool in_only) {
 		test += myto_string(i);
 		printf("%i: ", i);
 		fflush(stdout);
-		if (genin(test + ".in", seed += val)) {
+		if (0 != genin(test + ".in", seed += val)) {
 			printf("failed -> in\n");
 			return 2;
 		}
