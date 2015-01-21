@@ -159,9 +159,12 @@ try_open_dir:
 	file_name = ap.getNextArg();
 	if (file_name.size()) {
 		do {
-			if (!file_exists(inFile_ = test_dir + file_name + ".in"))
+			inFile_ = test_dir + file_name + ".in";
+			if (!file_exists(inFile_))
 				eprintf("No such file: '%s'\n", inFile_.c_str());
 			else {
+				// We have .in and may .out file
+				outFile_ = test_dir + file_name + ".out";
 				printf("%s: ", file_name.c_str());
 				fflush(stdout);
 				if (checkOnTest(pr, true) != 0)
@@ -176,6 +179,7 @@ try_open_dir:
 			file_name = ap.getNextArg();
 		} while (file_name.size());
 	} else {
+		// Run on all test in directory
 		while ((test = readdir(dir)))
 			if (file_exists(test_dir + test->d_name)) {
 				file_name = test->d_name;
