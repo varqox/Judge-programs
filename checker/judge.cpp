@@ -86,22 +86,21 @@ int Problem::JudgeClass::checkOnTest(Problem* pr, bool display_errors) {
 	size_t line = 0;
 	string errors;
 	switch (pr->checker(inFile_, outFile_, ansFile_, &line, &errors)) {
+		case 0:
+			printf("[ OK ]  %.3lfs\n", cl);
+			break;
 		case 1:
 			printf("WA  %.3lfs -> line: %u\n", cl, line);
 			if (display_errors)
 				printf("%s\n", errors.c_str());
 			remove(ansFile_.c_str());
 			return 1;
-			break;
-		case 2:
+		default:
 			printf("???  %.3lfs -> Checker error\n", cl);
 			if (display_errors)
 				printf("%s\n", errors.c_str());
 			remove(ansFile_.c_str());
 			return 3;
-			break;
-		default:
-			printf("[ OK ]  %.3lfs\n", cl);
 	}
 	remove(ansFile_.c_str());
 	return 0;
