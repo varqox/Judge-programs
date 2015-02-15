@@ -12,7 +12,7 @@ Checker is a library/tool used to simplify writing test generators.
 
 To add problem to checker you only have to write class which inherit Problem class and add it to problems_available array in problems_available.cpp. Let's see an example:
 
-Reaplace part:
+Replace part:
 ```C++
 Problem* problems_available[] = {
 	};

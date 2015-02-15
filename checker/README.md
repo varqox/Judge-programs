@@ -12,7 +12,7 @@ Checker is a library/tool used to simplify writing test generators.
 
 To add problem to checker you only have to write class which inherit Problem class and add it to problems_available array in problems_available.cpp. Let's see an example:
 
-Reaplace part:
+Replace part:
 ```C++
 Problem* problems_available[] = {
 	};
@@ -75,7 +75,7 @@ public:
 
     string tag() const { return "COM"; }
 
-    string help() const { return "Complex:\n  gen com [N] [ARGS]... - generates N tests, in ARGS you can use comparisions to set variables: n\n    To see default ranges type 'gen com'\n    Example: gen com 10 n <= 28 - generates 10 tests in which n <= 28\n"; }
+    string help() const { return "Complex:\n  gen com [N] [ARGS]... - generates N tests, in ARGS you can use comparisons to set variables: n\n    To see default ranges type 'gen com'\n    Example: gen com 10 n <= 28 - generates 10 tests in which n <= 28\n"; }
 
     int checker(const string& input, const string& output, const string& answer, size_t* l = NULL, string* errors = NULL) {
         (void) output; // Disable Unused parameter warning
