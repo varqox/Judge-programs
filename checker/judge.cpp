@@ -90,7 +90,7 @@ int Problem::JudgeClass::checkOnTest(Problem* pr, bool display_errors) {
 			printf("[ OK ]  %.3lfs\n", cl);
 			break;
 		case 1:
-			printf("WA  %.3lfs -> line: %u\n", cl, line);
+			printf("WA  %.3lfs -> line: %lu\n", cl, line);
 			if (display_errors)
 				printf("%s\n", errors.c_str());
 			remove(ansFile_.c_str());
