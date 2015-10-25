@@ -135,7 +135,26 @@ void parse_line(const char* line) {
 		system(line);
 }
 
-int main() {
+int main(int argc, char **argv) {
+	// Run command passed via main parameters and exit
+	if (argc > 1) {
+		string line;
+		for (int i = 1; i < argc; ++i) {
+			if (i > 0)
+				line += ' ';
+			// Escape white spaces
+			for (char *c = argv[i]; *c != '\0'; ++c) {
+				if (isspace(*c) || *c == '\\')
+					line += '\\';
+				line += *c;
+			}
+		}
+
+		// Run command
+		parse_line(line.c_str());
+		return 0;
+	}
+
 	printf("Type help for help\n");
 #ifdef USE_READLINE
 	fd_set fds;
