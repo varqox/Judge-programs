@@ -142,12 +142,16 @@ int main(int argc, char **argv) {
 		for (int i = 1; i < argc; ++i) {
 			if (i > 0)
 				line += ' ';
+
 			// Escape white spaces
-			for (char *c = argv[i]; *c != '\0'; ++c) {
+			/*for (char *c = argv[i]; *c != '\0'; ++c) {
 				if (isspace(*c) || *c == '\\')
 					line += '\\';
 				line += *c;
-			}
+			}*/
+
+			// Escaping makes problem with passing limits via parameters
+			line += argv[i];
 		}
 
 		// Run command
