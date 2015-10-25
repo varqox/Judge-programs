@@ -4,7 +4,7 @@ export
 EXTRA_OPTIONS = -O3
 
 # Extra options to link project with
-EXTRA_LD_OPTIONS = -s -O3
+EXTRA_LD_OPTIONS = -O3
 
 # Warnings options to compile project with
 WARNING_OPTIONS = -Wall -Wextra -Wabi -Weffc++ -Wshadow -Wfloat-equal -Wno-unused-result
@@ -28,6 +28,9 @@ all:
 	$(Q)$(MAKE) $(MFLAGS) -f Makefile2
 	@printf "\033[;32mBuild finished\033[0m\n"
 
+PHONY += release
+release: override EXTRA_LD_OPTIONS += -static
+release: all
 
 PHONY += debug
 debug: override CC += -DDEBUG
