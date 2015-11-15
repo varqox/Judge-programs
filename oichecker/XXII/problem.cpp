@@ -6,7 +6,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#ifdef WIN32
+#ifdef _WIN32
 # include <direct.h>
 
 std::string convertToWinPath(std::string s) {
@@ -83,7 +83,7 @@ int Problem::gen(const string& path, const std::string& args, bool in_only) {
 	D (printf("'%s'\n", args.c_str());)
 	printf("Cleaning directory...");
 	fflush(stdout);
-#ifdef WIN32
+#ifdef _WIN32
 	remove_r(path.c_str());
 	system(("mkdir \"" + convertToWinPath(path) + "\" > NUL 2> NUL").c_str());
 	if (!path_exists(path)) {

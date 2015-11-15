@@ -7,7 +7,7 @@
 
 using namespace std;
 
-#ifdef WIN32
+#ifdef _WIN32
 	inline bool file_exist(const string& name)
 	{return !system(("IF EXIST \""+name+"\" (EXIT 0) ELSE (EXIT 1)").c_str());}
 #else

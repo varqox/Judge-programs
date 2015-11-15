@@ -56,7 +56,7 @@ protected:
 
 Problem* problems_available[] = {
 	new EasyProblem // Easy problem
-	};
+};
 ```
 
 In Easy problem you have to read a number and write it. Now you can build checker. (See [How to build](#building))
@@ -180,7 +180,7 @@ private:
 
 Problem* problems_available[] = {
     new ComplexProblem
-    };
+};
 ```
 
 We think all you want to know is in code above, but unless you think it is you can ask a question e.g. by Issue.

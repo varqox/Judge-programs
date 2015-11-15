@@ -536,7 +536,7 @@ namespace gen
 		srand(time(NULL));
 		int n=to_int(argv[2]);
 		fstream test_in, test_out;
-	#ifdef WIN32
+	#ifdef _WIN32
 		{
 			system(("(mkdir \"tests\\"+task_name+"\\\") > NUL 2> NUL").c_str());
 			system(("(rd /S /Q \"tests\\"+task_name+"\\\") > NUL 2> NUL").c_str());

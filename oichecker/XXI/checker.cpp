@@ -18,7 +18,7 @@ namespace checker
 
 	inline void task::clean()
 	{
-	#ifdef WIN32
+	#ifdef _WIN32
 		system("(del tests\\out) > NUL 2> NUL");
 	#else
 		system("rm -f tests/out");
@@ -30,7 +30,7 @@ namespace checker
 		// runtime
 		timeval ts, te;
 		gettimeofday(&ts, NULL);
-	#ifdef WIN32
+	#ifdef _WIN32
 		system((command+path+t_name+".in > tests\\out").c_str());
 	#else
 		system((command+path+t_name+".in > tests/out").c_str());
@@ -92,7 +92,7 @@ namespace checker
 		// runtime
 		timeval ts, te;
 		gettimeofday(&ts, NULL);
-	#ifdef WIN32
+	#ifdef _WIN32
 		system((command+path+t_name+".in > tests\\out").c_str());
 	#else
 		system((command+path+t_name+".in > tests/out").c_str());
@@ -142,7 +142,7 @@ namespace checker
 			{
 				int t, a, b, n=0, k;
 				bool wrong=false;
-				if(in.good()) 
+				if(in.good())
 				{
 					in >> t >> a >> b;
 					vector<int> arr(t);
@@ -232,7 +232,7 @@ namespace checker
 		if(task==0) run_test=run;
 		else if(task==1) run_test=runKLO;
 		total_time=max_time=0;
-	#ifdef WIN32
+	#ifdef _WIN32
 		system(("dir /b \"tests\\"+name+"\" > tests\\list.txt 2> NUL").c_str());
 	#else
 		command="./";
@@ -264,7 +264,7 @@ namespace checker
 			if(!run_test(false)) wa.push(t_name);
 		}
 		list.close();
-	#ifdef WIN32
+	#ifdef _WIN32
 		system("(del tests\\list.txt) > NUL 2> NUL");
 	#else
 		system("rm -f tests/list.txt");
@@ -287,7 +287,7 @@ namespace checker
 	{
 		if(argc<3)
 		{
-		#ifdef WIN32
+		#ifdef _WIN32
 			cout << "Usage: spr <task name> <exec name> [test names...]" << endl;
 		#else
 			cout << "Usage: spr <task name> <exec name> [test names...]" << endl;
@@ -304,7 +304,7 @@ namespace checker
 			if(task==0) run_test=task::run;
 			else if(task==1) run_test=task::runKLO;
 			total_time=max_time=0;
-		#ifndef WIN32
+		#ifndef _WIN32
 			task::command="./";
 		#endif
 			task::path="tests/"+string(argv[1])+'/';

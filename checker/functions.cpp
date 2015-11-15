@@ -236,6 +236,6 @@ string parseArgLimits(const string& args, map<string, std::pair<int,int> >& limi
 
 void printLimits(FILE* stream, const map<string, std::pair<int,int> >& limits) {
 	fprintf(stream, "Ranges:\n");
-	for (typeof(limits.begin()) i = limits.begin(); i != limits.end(); ++i)
+	for (__typeof(limits.begin()) i = limits.begin(); i != limits.end(); ++i)
 		fprintf(stream, " %s -> [%i, %i]\n", i->first.c_str(), i->second.first, i->second.second);
 }

@@ -524,7 +524,7 @@ private:
 		D (
 			void inorder_walk(size_t x, std::string sp, std::string sn)
 			{
-			#ifdef WIN32
+			#ifdef _WIN32
 				static std::string cr="  ", cl="  ", cp="  ";
 				static bool _$_=true;
 				if(_$_)

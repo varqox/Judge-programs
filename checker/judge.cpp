@@ -8,7 +8,7 @@
 #include <vector>
 #include <algorithm>
 
-#ifndef WIN32
+#ifndef _WIN32
 # include <unistd.h>
 # include <sys/wait.h>
 #endif
@@ -46,7 +46,7 @@ int Problem::JudgeClass::checkOnTest(Problem* pr, bool display_errors) {
 	// Runtime
 	timeval ts, te;
 	gettimeofday(&ts, NULL);
-#ifdef WIN32
+#ifdef _WIN32
 	int ret = system((exec_ + " < " + inFile_ + " > " + ansFile_).c_str()) >> 8;
 #else
 	pid_t cpid;
@@ -90,7 +90,7 @@ int Problem::JudgeClass::checkOnTest(Problem* pr, bool display_errors) {
 			printf("[ OK ]  %.3lfs\n", cl);
 			break;
 		case 1:
-			printf("WA  %.3lfs -> line: %lu\n", cl, line);
+			printf("WA  %.3lfs -> line: %lu\n", cl, (unsigned long)line);
 			if (display_errors)
 				printf("%s\n", errors.c_str());
 			remove(ansFile_.c_str());
@@ -119,7 +119,7 @@ void Problem::JudgeClass::operator()(Problem* pr, const string& exec, const stri
 		return;
 	}
 	// Check if exec is executeable
-#ifndef WIN32
+#ifndef _WIN32
 	if (access(exec.c_str(), X_OK) == -1) {
 		eprintf("Execution permission denied: '%s'\n", exec.c_str());
 		return;
