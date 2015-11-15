@@ -15,7 +15,7 @@
 
 using namespace std;
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 	inline bool file_exist(const string& name)
 	{return !system(("IF EXIST \""+name+"\" (EXIT 0) ELSE (EXIT 1)").c_str());}
@@ -58,7 +58,7 @@ public:
 	{
 		if(*_name.rbegin()!='/') _name+='/';
 		// get name of temporary file
-	#ifdef WIN32
+	#ifdef _WIN32
 		char tmp[MAX_PATH], path[MAX_PATH];
 		GetTempPath(MAX_PATH, path);
 		GetTempFileName(path, TEXT("judge"), 0, tmp);
@@ -113,10 +113,11 @@ void remove_trailing_spaces(string& str)
 
 int task::check_on_test(const string& test, const string& exec, bool wrongs_info)
 {
+	cout << test << ": " << flush;
 	// runtime
 	timeval ts, te;
 	gettimeofday(&ts, NULL);
-#ifdef WIN32
+#ifdef _WIN32
 	int ret=system((exec+" < \""+_name+test+".in\" > \""+outf_name+"\"").c_str()) >> 8;
 #else
 	pid_t cpid;
@@ -155,13 +156,13 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 	fstream out(outf_name.c_str(), ios_base::in), ans((_name+test+".out").c_str(), ios_base::in);
 	if(!out.good() && !ans.good())
 	{
-		cerr << "Error with checking test\n";
+		cout << "Error with checking test\n";
 		remove(outf_name.c_str());
 		return 0;
 	}
 	if(ret!=0)
 	{
-		cout << test << ": Runtime error (returned value: " << ret << ") time - " << fixed;
+		cout << "Runtime error (returned value: " << ret << ") time - " << fixed;
 		cout.precision(3);
 		cout << cl << 's' << endl;
 		remove(outf_name.c_str());
@@ -184,7 +185,7 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 	while(++line<out_in.size() && line<ans_in.size())
 		if(ans_in[line]!=out_in[line])
 		{
-			cout << test << ": Wrong! time - " << fixed;
+			cout << "Wrong! time - " << fixed;
 			cout.precision(3);
 			cout << cl << "s >> line: " << line+1 << endl;
 			if(wrongs_info)
@@ -196,7 +197,7 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 		}
 	if(ans_in.size()>out_in.size())
 	{
-		cout << test << ": Wrong! time - " << fixed;
+		cout << "Wrong! time - " << fixed;
 		cout.precision(3);
 		cout << cl << "s >> line: " << line+1 << endl;
 		if(wrongs_info)
@@ -207,7 +208,7 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 		return 1;
 	}
 	// end of checking answer
-	cout << test << ": [ OK ] time - " << fixed;
+	cout << "[ OK ] time - " << fixed;
 	cout.precision(3);
 	cout << cl << 's' << endl;
 	remove(outf_name.c_str());
