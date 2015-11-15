@@ -126,7 +126,7 @@ void Problem::JudgeClass::operator()(Problem* pr, const string& exec, const stri
 	}
 #endif
 
-	std::vector<string> wrong_tests;
+	std::vector<string> WA, RTE; // Wrong answer, runtime error
 	std::vector<string> tests;
 	ArgParser ap(args);
 	string max_time_test, test_dir = ap.getNextArg();
@@ -166,8 +166,12 @@ try_open_dir:
 				outFile_ = test_dir + file_name + ".out";
 				printf("%s: ", file_name.c_str());
 				fflush(stdout);
-				if (checkOnTest(pr, true) != 0)
-					wrong_tests.push_back(file_name);
+
+				int rc = checkOnTest(pr, true);
+				if (rc == 1)
+					WA.push_back(file_name);
+				else if (rc != 0)
+					RTE.push_back(file_name);
 
 				total_time += runtime_;
 				if (runtime_ > max_time) {
@@ -196,8 +200,12 @@ try_open_dir:
 
 			printf("%s: ", tests[i].c_str());
 			fflush(stdout);
-			if (checkOnTest(pr) != 0)
-				wrong_tests.push_back(tests[i]);
+
+			int rc = checkOnTest(pr);
+			if (rc == 1)
+				WA.push_back(tests[i]);
+			else if (rc != 0)
+				RTE.push_back(tests[i]);
 
 			total_time += runtime_;
 			if (runtime_ > max_time) {
@@ -207,13 +215,22 @@ try_open_dir:
 		}
 	}
 
-	if (wrong_tests.size()) {
-		printf("Wrong test:\n%s", wrong_tests.front().c_str());
-		for (size_t i = 1; i < wrong_tests.size(); ++i)
-			printf(" %s", wrong_tests[i].c_str());
+	if (WA.size() || RTE.size())
+		printf("\n");
+	if (WA.size()) {
+		printf("WA:\n%s", WA.front().c_str());
+		for (size_t i = 1; i < WA.size(); ++i)
+			printf(" %s", WA[i].c_str());
 		printf("\n");
 	}
-	printf("Total time - %.3lfs\nMax time - %.3lfs : %s\n", total_time, max_time, max_time_test.c_str());
+	if (RTE.size()) {
+		printf("RTE:\n%s", RTE.front().c_str());
+		for (size_t i = 1; i < RTE.size(); ++i)
+			printf(" %s", RTE[i].c_str());
+		printf("\n");
+	}
+
+	printf("\nTotal time - %.3lfs\nMax time - %.3lfs : %s\n", total_time, max_time, max_time_test.c_str());
 }
 
 Problem::JudgeClass Problem::judge("answer.checker");

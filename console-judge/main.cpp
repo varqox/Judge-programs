@@ -48,7 +48,7 @@ return out;
 class task
 {
 	string _name, _longest_test, outf_name;
-	vector<string> _test_names, WA; // WA - wrong tests
+	vector<string> _test_names, WA, RTE; // WA - wrong answer, RTE - runtime error
 	double _total_time, _max_time;
 
 	int check_on_test(const string& test, const string& exec, bool wrongs_info=false);
@@ -166,7 +166,7 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 		cout.precision(3);
 		cout << cl << 's' << endl;
 		remove(outf_name.c_str());
-		return 1;
+		return 2;
 	}
 	deque<string> out_in, ans_in;
 	string out_tmp, ans_tmp;
@@ -241,6 +241,7 @@ void task::judge(int argc, char** argv)
 	_longest_test="";
 	vector<string>().swap(_test_names);
 	vector<string>().swap(WA);
+	vector<string>().swap(RTE);
 	bool show_wrongs_info=argc!=1;
 	if(argc==1) make_list_of_tests();
 	else
@@ -252,17 +253,29 @@ void task::judge(int argc, char** argv)
 		}
 	for(vector<string>::iterator current_test=_test_names.begin(); current_test!=_test_names.end(); ++current_test)
 	{
-		if(check_on_test(*current_test, argv[0], show_wrongs_info))
+		int rc = check_on_test(*current_test, argv[0], show_wrongs_info);
+		if (rc == 1)
 			WA.push_back(*current_test);
+		else if (rc != 0)
+			RTE.push_back(*current_test);
 	}
+	if (WA.size() || RTE.size())
+		cout << "\n";
 	if(!WA.empty())
 	{
-		cout << "Wrong tests: " << WA.front();
+		cout << "WA:\n" << WA.front();
 		for(vector<string>::iterator i=WA.begin()+1; i!=WA.end(); ++i)
 			cout << ", " << *i;
 		cout << endl;
 	}
-	cout << "Total time - " << fixed;
+	if(!RTE.empty())
+	{
+		cout << "RTE:\n" << RTE.front();
+		for(vector<string>::iterator i=RTE.begin()+1; i!=RTE.end(); ++i)
+			cout << ", " << *i;
+		cout << endl;
+	}
+	cout << "\nTotal time - " << fixed;
 	cout.precision(3);
 	cout << _total_time << "s\nMax time - " << fixed;
 	cout.precision(3);
