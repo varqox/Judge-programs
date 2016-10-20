@@ -1,7 +1,7 @@
 export
 
 # Extra options to compile project with
-EXTRA_OPTIONS = -O2
+EXTRA_OPTIONS = -O2 -std=c++11
 
 # Extra options to link project with
 EXTRA_LD_OPTIONS = -s -O2 -static
@@ -43,5 +43,5 @@ force:
 
 %.o: %.cpp force
 	$(Q)$(CXX) $< $(CXXFLAGS) -o $@
-	
+
 .PHONY: $(PHONY)

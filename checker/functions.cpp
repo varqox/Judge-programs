@@ -6,12 +6,15 @@
 #include <cstdio>
 #include <cstring>
 #include <dirent.h>
+#include <sys/stat.h>
 
 #define eprintf(args...) fprintf(stderr, args)
 
 using std::string;
 using std::map;
 using std::vector;
+
+std::mt19937_64 gen__(std::chrono::system_clock::now().time_since_epoch().count());
 
 string getNextArg(const char* line, size_t& i, size_t s) {
 	string res;
@@ -76,19 +79,6 @@ bool file_exists(const std::string& file) {
 		return true;
 	}
 	return false;
-}
-
-int remove_r(const char* path) {
-	DIR* directory;
-	dirent* current_file;
-	string tmp_dir_path = path;
-	if (*tmp_dir_path.rbegin() != '/')
-		tmp_dir_path += '/';
-	if ((directory = opendir(path)))
-	while ((current_file = readdir(directory)))
-		if (strcmp(current_file->d_name, ".") && strcmp(current_file->d_name, ".."))
-			remove_r((tmp_dir_path + current_file->d_name).c_str());
-	return remove(path);
 }
 
 bool isNum(const std::string& s) {
@@ -239,3 +229,68 @@ void printLimits(FILE* stream, const map<string, std::pair<int,int> >& limits) {
 	for (__typeof(limits.begin()) i = limits.begin(); i != limits.end(); ++i)
 		fprintf(stream, " %s -> [%i, %i]\n", i->first.c_str(), i->second.first, i->second.second);
 }
+
+#ifdef _WIN32
+
+int remove_r(const char* path) {
+	DIR* directory;
+	dirent* current_file;
+	string tmp_dir_path = path;
+	if (*tmp_dir_path.rbegin() != '/')
+		tmp_dir_path += '/';
+	if ((directory = opendir(path)))
+	while ((current_file = readdir(directory)))
+		if (strcmp(current_file->d_name, ".") && strcmp(current_file->d_name, ".."))
+			remove_r((tmp_dir_path + current_file->d_name).c_str());
+	return remove(path);
+}
+
+#else
+/**
+ * @brief Removes recursively directory @p pathname relative to a directory file
+ * descriptor @p dirfd
+ *
+ * @param dirfd directory file descriptor
+ * @param pathname directory pathname (relative to @p dirfd)
+ *
+ * @return 0 on success, -1 on error
+ *
+ * @errors The same that occur for fstatat64(2), openat(2), unlinkat(2),
+ * fdopendir(3)
+ */
+int __remove_rat(int dirfd, const char* path) {
+	int fd = openat(dirfd, path, O_RDONLY | O_NOCTTY | O_NONBLOCK |
+			O_LARGEFILE | O_DIRECTORY | O_NOFOLLOW);
+	if (fd == -1)
+		return unlinkat(dirfd, path, AT_REMOVEDIR);
+
+	DIR *dir = fdopendir(fd);
+	if (dir == nullptr) {
+		sclose(fd);
+		return unlinkat(dirfd, path, AT_REMOVEDIR);
+	}
+
+	dirent *file;
+	while ((file = readdir(dir)))
+		if (0 != strcmp(file->d_name, ".") && 0 != strcmp(file->d_name, "..")) {
+			if (file->d_type == DT_DIR)
+				__remove_rat(fd, file->d_name);
+			else
+				unlinkat(fd, file->d_name, 0);
+		}
+
+	closedir(dir);
+	return unlinkat(dirfd, path, AT_REMOVEDIR);
+}
+
+int remove_rat(int dirfd, const char* path) {
+	struct stat64 sb;
+	if (fstatat64(dirfd, path, &sb, AT_SYMLINK_NOFOLLOW) == -1)
+		return -1;
+
+	if (S_ISDIR(sb.st_mode))
+		return __remove_rat(dirfd, path);
+
+	return unlinkat(dirfd, path, 0);
+}
+#endif
