@@ -97,7 +97,7 @@ int Problem::gen(const string& path, const std::string& args, bool in_only) {
 	}
 #endif
 	printf(" Done.\n");
-	int seed = rand(), val = rand() % 1024;
+	int seed = getRandom(1, 1e9), val = getRandom(1, 1024);
 	string test;
 	for (int i = 1; i <= n; ++i) {
 		test = path;

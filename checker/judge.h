@@ -22,6 +22,7 @@ public:
 			throw exc;
 		}
 	}
+
 	void operator()(Problem* pr, const std::string& exec, const std::string& args);
 	~JudgeClass() {
 		if (ansFile_.size())

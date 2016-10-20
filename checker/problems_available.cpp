@@ -102,7 +102,7 @@ public:
 
 protected:
     int genin(const string& file, int seed) {
-        srand(seed);
+        gen__.seed(seed);
         int n = getRandom(limits["n"]);
         FILE *f = fopen(file.c_str(), "w");
         if (!f) // Check if cannot open .in file

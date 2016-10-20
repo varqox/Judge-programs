@@ -43,11 +43,11 @@ public:
 
 protected:
 	int genin(const string& file, int seed) {
-		srand(seed);
+		gen__.seed(seed); // Seed random generator, to be later able to use getRandom()
 		FILE *f = fopen(file.c_str(), "w");
 		if (!f)
 			return 1;
-		int n = 1 + rand() % 1000000;
+		int n = getRandom(1, 1000000);
 		fprintf(f, "%i\n", n);
 		fclose(f);
 		return 0;
@@ -154,7 +154,7 @@ public:
 
 protected:
     int genin(const string& file, int seed) {
-        srand(seed);
+        gen__.seed(seed); // Seed random generator, to be later able to use getRandom()
         int n = getRandom(limits["n"]);
         FILE *f = fopen(file.c_str(), "w");
         if (!f) // Check if cannot open .in file
