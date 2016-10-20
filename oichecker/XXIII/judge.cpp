@@ -1,0 +1,320 @@
+#include "judge.h"
+#include "functions.h"
+#include <dirent.h>
+#include <sys/time.h>
+#include <cmath>
+#include <string>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+
+#ifndef _WIN32
+# include <unistd.h>
+# include <sys/wait.h>
+#endif
+
+#define eprintf(args...) fprintf(stderr, args)
+
+#ifdef DEBUG
+# define D(...) __VA_ARGS__
+#else
+# define D(...)
+#endif
+
+using std::string;
+
+struct CompareTestName {
+	static std::pair<string, string> _getId(const string& str) {
+		std::pair<string, string> res;
+		string::const_reverse_iterator i = str.rbegin();
+		while (i != str.rend() && isalpha(*i))
+			res.second += *i++;
+		while (i != str.rend() && isdigit(*i))
+			res.first += *i++;
+		std::reverse(res.first.begin(), res.first.end());
+		std::reverse(res.second.begin(), res.second.end());
+		return res;
+	}
+
+	bool operator()(const string& a, const string& b) {
+		std::pair<string, string> x = _getId(a), y = _getId(b);
+		return (x.first.size() == y.first.size() ? (x.first == y.first ? x.second < y.second : x.first < y.first) : x.first.size() < y.first.size());
+	}
+};
+
+int Problem::JudgeClass::checkOnTest(Problem* pr, bool display_errors) {
+	// Runtime
+	timeval ts, te;
+	gettimeofday(&ts, NULL);
+#ifdef _WIN32
+	int ret = system((exec_ + " < " + inFile_ + " > " + ansFile_).c_str()) >> 8;
+#else
+	pid_t cpid;
+	if ((cpid = fork()) == 0)
+	{
+		// Set up enviroment
+		freopen((inFile_).c_str(), "r", stdin);
+		freopen(ansFile_.c_str(), "w", stdout);
+
+		char *arg[] = {NULL};
+		execve(exec_.c_str(), arg, arg);
+		exit(-1);
+	}
+	int ret;
+	waitpid(cpid, &ret, 0);
+	if (WIFEXITED(ret))
+		ret = WEXITSTATUS(ret);
+	else if (WIFSIGNALED(ret))
+		ret = WTERMSIG(ret) + 128;
+	else
+		// Shouldn't happen. Unknown status...
+		ret = EXIT_FAILURE;
+#endif
+	gettimeofday(&te, NULL);
+	double cl = (te.tv_sec + static_cast<double>(te.tv_usec)/1000000) - (ts.tv_sec + static_cast<double>(ts.tv_usec)/1000000);
+	// End of runtime && time calculating
+	cl *= 1000;
+	cl = round(cl) / 1000;
+	runtime_ = cl;
+
+	if (ret != 0) {
+		printf("Runtime error (returned value: %i) %.3lfs\n", ret, cl);
+		remove(ansFile_.c_str());
+		return 2;
+	}
+
+	size_t line = 0;
+	string errors;
+	switch (pr->checker(inFile_, outFile_, ansFile_, &line, &errors)) {
+		case 0:
+			printf("[ OK ]  %.3lfs\n", cl);
+			break;
+		case 1:
+			printf("WA  %.3lfs -> line: %lu\n", cl, (unsigned long)line);
+			if (display_errors)
+				printf("%s\n", errors.c_str());
+			remove(ansFile_.c_str());
+			return 1;
+		default:
+			printf("???  %.3lfs -> Checker error\n", cl);
+			if (display_errors)
+				printf("%s\n", errors.c_str());
+			remove(ansFile_.c_str());
+			return 3;
+	}
+	remove(ansFile_.c_str());
+	return 0;
+}
+
+void Problem::JudgeClass::operator()(Problem* pr, const string& exec, const string& args) {
+	double total_time = 0, max_time = 0;
+	exec_ = exec;
+
+	// Check if exec exists
+	FILE *f = fopen(exec.c_str(), "r");
+	if (f)
+		fclose(f);
+	else {
+		eprintf("No such file: '%s'\n", exec.c_str());
+		return;
+	}
+	// Check if exec is executeable
+#ifndef _WIN32
+	if (access(exec.c_str(), X_OK) == -1) {
+		eprintf("Execution permission denied: '%s'\n", exec.c_str());
+		return;
+	}
+#endif
+
+	std::vector<string> wrong_tests;
+	std::vector<string> tests;
+	ArgParser ap(args);
+	string max_time_test, test_dir = ap.getNextArg();
+	bool is_default = test_dir.empty();
+	if (test_dir.empty())
+		test_dir = "tests/" + tolower(pr->tag());
+	if (*test_dir.rbegin() != '/')
+		test_dir += '/';
+	D (eprintf("test_dir: %s\n", test_dir.c_str());)
+
+	DIR* dir;
+	dirent* test;
+	string file_name;
+try_open_dir:
+	dir = opendir(test_dir.c_str());
+	if (dir == NULL) {
+		eprintf("Cannot open directory '%s'\n", test_dir.c_str());
+		if (!is_default) {
+			is_default = true;
+			test_dir = "tests/" + tolower(pr->tag()) + "/";
+			eprintf("Try default directory '%s'\n", test_dir.c_str());
+			ap.reset();
+			goto try_open_dir;
+		} else
+			return;
+	}
+
+	// Check if tests are specified
+	file_name = ap.getNextArg();
+	if (file_name.size()) {
+		do {
+			inFile_ = test_dir + file_name + ".in";
+			if (!file_exists(inFile_))
+				eprintf("No such file: '%s'\n", inFile_.c_str());
+			else {
+				// We have .in and may .out file
+				outFile_ = test_dir + file_name + ".out";
+				printf("%s: ", file_name.c_str());
+				fflush(stdout);
+				if (checkOnTest(pr, true) != 0)
+					wrong_tests.push_back(file_name);
+
+				total_time += runtime_;
+				if (runtime_ > max_time) {
+					max_time = runtime_;
+					max_time_test = file_name;
+				}
+			}
+			file_name = ap.getNextArg();
+		} while (file_name.size());
+	} else {
+		// Run on all test in directory
+		while ((test = readdir(dir)))
+			if (file_exists(test_dir + test->d_name)) {
+				file_name = test->d_name;
+				size_t len = file_name.size();
+				if (len > 3 && file_name.compare(len-3, 3, ".in") == 0)
+					tests.push_back(file_name.substr(0, len-3));
+			}
+
+		sort(tests.begin(), tests.end(), CompareTestName());
+
+		for (size_t i = 0; i < tests.size(); ++i) {
+			// We have .in and may .out file
+			inFile_ = test_dir + tests[i] + ".in";
+			outFile_ = test_dir + tests[i] + ".out";
+
+			printf("%s: ", tests[i].c_str());
+			fflush(stdout);
+			if (checkOnTest(pr) != 0)
+				wrong_tests.push_back(tests[i]);
+
+			total_time += runtime_;
+			if (runtime_ > max_time) {
+				max_time = runtime_;
+				max_time_test = tests[i];
+			}
+		}
+	}
+
+	if (wrong_tests.size()) {
+		printf("Wrong test:\n%s", wrong_tests.front().c_str());
+		for (size_t i = 1; i < wrong_tests.size(); ++i)
+			printf(" %s", wrong_tests[i].c_str());
+		printf("\n");
+	}
+	printf("Total time - %.3lfs\nMax time - %.3lfs : %s\n", total_time, max_time, max_time_test.c_str());
+}
+
+Problem::JudgeClass Problem::judge("answer.checker");
+/*  NCG written in 2015 by Maciej A. Czyzewski
+
+To the extent possible under law, the author has dedicated all copyright
+and related and neighboring rights to this software to the public domain
+worldwide. This software is distributed without any warranty.
+
+See <http://creativecommons.org/publicdomain/zero/1.0/>.  */
+
+#include <cstring>
+#include <ctime>
+
+// S - seed, I - increment, t - mask, i - temporary
+static uint32_t S, I, t, i;
+
+// The length of the initial states
+#define SIZE 16
+
+// Abbreviation for getting values from the matrix
+#define M(i) ((i) & (SIZE - 1))
+
+// Bit rotation
+#define R(x, y) (((x) << (y)) | ((x) >> (16 - (y))))
+
+// XOR gate, relationships
+#define L(x, y) {                                    \
+  (y) ^= ((x) << 5) ^ ((y) >> 3) ^ ((x) >> 1);       \
+  (x) ^= ((y) << 8) ^ ((x) << 3) ^ ((y) << 9);       \
+}
+
+// Variebles in the algorithm
+static uint16_t a, b, c, d;
+
+// Initial state matrix (pi digits)
+static uint16_t G[SIZE], Q[SIZE] = { 1, 4, 1, 5, 9, 2, 6, 5,
+                              3, 5, 8, 9, 7, 9, 3, 2 };
+
+void push(uint32_t seed) {
+  // Preparation
+  I = seed * 0x3C6EF35F;
+
+  for (S = seed, i = 0; i < SIZE; i++) {
+    // Reinforcement
+    G[M(i)] ^= ((I * (S - 1)) ^ S) >> 16;
+    G[M(i)] ^= ((I * (S + 1)) ^ S) >> 00;
+
+    // Finalization
+    I ^= ((G[M(I - 1)] + G[M(i)]) << 16)
+      ^  ((G[M(I + 1)] - G[M(i)]) << 00);
+  }
+}
+
+uint32_t pull() {
+  // Variebles
+  a = G[M(I + 0)]; b = G[M(I + 1)];
+  c = G[M(I - 2)]; d = G[M(I + 2)];
+
+  // Initialization
+  t = (a + I) * (b - S);
+
+  // Allowance
+  t ^= a ^ (b << 8) ^ (c << 16) ^ (d & 0xff) ^ ((d >> 8) << 24);
+
+  // Mixing
+  L(G[M(I + 0)], G[M(I - 2)]);
+  L(G[M(I + 0)], G[M(I + 2)]);
+
+  // Transformation
+  G[M(I + 0)] = G[M(t - 1)] ^ R(c, M(t)) ^ R(d, M(t)) ^ a;
+  G[M(I + 1)] = (b >> 1) ^ (-(b & 1u) & 0xB400u); // LFSR
+
+  // Increment
+  I += 2;
+
+  return t;
+}
+
+void reset() {
+  // Copying defaults
+  memcpy(G, Q, 2 * SIZE);
+}
+
+void ncg(uint32_t seed) {
+  // Cleaning state matrix
+  reset();
+
+  // Push to NCG structure
+  push(seed);
+}
+
+namespace {
+
+// Initialise generator on program start up
+class ncg_init {
+	static ncg_init x;
+
+	ncg_init() { ncg(time(nullptr) * errno); }
+};
+
+ncg_init ncg_init::x;
+
+} // anonymous namespace
