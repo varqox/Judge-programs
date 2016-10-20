@@ -1,37 +1,18 @@
-export
+include Makefile.config
 
-PHONY := all
-all: chck
+.PHONY: all
+all: check
 
-chck: problem.o main.o problems_available.o judge.o functions.o
+$(eval $(call dependencies))
+
 ifeq ($(USE_READLINE), 1)
-	$(Q)$(call P,LINK,$@)$(CXX) $^ $(LFLAGS) -o $@ -lreadline
-
-main.o:
-	$(Q)$(call P,CXX,$@)$(CXX) $< $(CXXFLAGS) -o $@ -DUSE_READLINE
-
-else
-	$(Q)$(call P,LINK,$@)$(CXX) $^ $(LFLAGS) -o $@
+main.o: CFLAGS += -DUSE_READLINE
+check: EXTRA_LD_FLAGS += -lreadline
 endif
 
-PHONY += clean
+check: problem.o main.o problems_available.o judge.o functions.o
+	$(LINK)
+
+.PHONY: clean
 clean:
-	$(RM) `find . -regex '.*\.\(o\|dep-s\)$$'`
-
-PHONY += mrproper
-mrproper: clean
-	$(RM)
-
-.PHONY: $(PHONY)
-
--include $(shell ls | egrep ".c$$|.cpp$$" | sed "s/$$/.dep-s/")
-
-%.o: %.c
-	$(Q)$(call P,CC,$@)$(CC) $< $(CXXFLAGS) -o $@
-
-%.o: %.cpp
-	$(Q)$(call P,CXX,$@)$(CXX) $< $(CXXFLAGS) -o $@
-
-%.dep-s:
-	@ echo -n "$@ " > $@
-	@$(call P,CC,$@)$(CC) -MM $* >> $@
+	$(Q)$(RM) *.o *.deps check

@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
 		FD_SET(fileno(rl_instream), &fds);
 		r = select(FD_SETSIZE, &fds, NULL, NULL, NULL);
 		if (r < 0) {
-			perror("checker: select");
+			perror("select()");
 			rl_callback_handler_remove();
 			break;
 		}

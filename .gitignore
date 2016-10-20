@@ -13,6 +13,4 @@
 *.a
 
 # GNU Make dependences
-*.dep-s
-
-checker/chck
+*.deps
