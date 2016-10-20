@@ -31,7 +31,7 @@ public:
 
 	int genout(const string& input, const string& output) {
 		FILE *in = fopen(input.c_str(), "r"), *out = fopen(output.c_str(), "w");
-		if (in == NULL || out == NULL)
+		if (!in || !out)
 			return 1;
 		int n;
 		fscanf(in, "%i", &n);
@@ -45,7 +45,7 @@ protected:
 	int genin(const string& file, int seed) {
 		srand(seed);
 		FILE *f = fopen(file.c_str(), "w");
-		if (f == NULL)
+		if (!f)
 			return 1;
 		int n = 1 + rand() % 1000000;
 		fprintf(f, "%i\n", n);
@@ -77,7 +77,7 @@ public:
 
     string help() const { return "Complex:\n  gen com [N] [ARGS]... - generates N tests, in ARGS you can use comparisons to set variables: n\n    To see default ranges type 'gen com'\n    Example: gen com 10 n <= 28 - generates 10 tests in which n <= 28\n"; }
 
-    int checker(const string& input, const string& output, const string& answer, size_t* l = NULL, string* errors = NULL) {
+    int checker(const string& input, const string& output, const string& answer, size_t* l = nullptr, string* errors = nullptr) {
         (void) output; // Disable Unused parameter warning
         std::fstream in(input.c_str(), std::ios::in), ans(answer.c_str(), std::ios::in);
         if (!in.good() || !ans.good())
@@ -127,7 +127,7 @@ public:
 
     int gen(const std::string& path, const std::string& args, bool in_only = false) {
         limits.clear(); // Remove old limits (optional)
-        limits["n"] = make_pair(1, 1000000000); // Set default limit for n
+        limits["n"] = {1, 1000000000}; // Set default limit for n
         string N, x;
         ArgParser ap(parseArgLimits(args, limits)); // Parse args for new limits, set them and create ap with other arguments (these which don't set limits)
         // Parsing arguments
@@ -141,7 +141,7 @@ public:
 
     int genout(const string& input, const string& output) {
         FILE *in = fopen(input.c_str(), "r"), *out = fopen(output.c_str(), "w");
-        if (in == NULL || out == NULL) // If something went wrong
+        if (!in || !out) // If something went wrong
             return 1;
         // All is OK
         long long n;
@@ -157,7 +157,7 @@ protected:
         srand(seed);
         int n = getRandom(limits["n"]);
         FILE *f = fopen(file.c_str(), "w");
-        if (f == NULL) // Check if cannot open .in file
+        if (!f) // Check if cannot open .in file
             return 1;
         fprintf(f, "%i\n", n);
         fclose(f);
@@ -165,7 +165,7 @@ protected:
     }
 
 private:
-    map<string, pair<int, int> > limits;
+    map<string, pair<int64_t, int64_t>> limits;
 
     static long long GCD(long long a, long long b) {
         long long c;

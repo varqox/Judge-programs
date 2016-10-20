@@ -56,10 +56,11 @@ inline int64_t rd(int64_t a, int64_t b) {
 bool isPositiveNum(const std::string& s);
 unsigned long long atoull(const std::string& s);
 bool isNum(const std::string& s, long long down, long long up);
-void try_set(std::pair<int, int>& p, const std::string& oper, const std::string& val);
 bool isOperator(const std::string& s);
 std::string parseArgLimits(const std::string& args, std::map<std::string, std::pair<int,int> >& limits);
+std::string parseArgLimits(const std::string& args, std::map<std::string, std::pair<int64_t,int64_t> >& limits);
 void printLimits(FILE* stream, const std::map<std::string, std::pair<int,int> >& limits);
+void printLimits(FILE* stream, const std::map<std::string, std::pair<int64_t,int64_t> >& limits);
 
 #ifdef _WIN32
 

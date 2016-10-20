@@ -25,8 +25,8 @@ void parse_line(const char* line);
 int running;
 
 void checker_linehandler(char *line) {
-	if (line == NULL || strcmp(line, "exit") == 0) {
-		if (line == NULL)
+	if (!line || strcmp(line, "exit") == 0) {
+		if (!line)
 			printf ("\n");
 		rl_callback_handler_remove ();
 		running = 0;
@@ -68,10 +68,16 @@ void parse_line(const char* line) {
 			break;
 		cmd += line[i];
 	}
+
+	// Help
 	if (strcmp(cmd.c_str(), "help") == 0)
 		help();
+
+	// Problems
 	else if (strcmp(cmd.c_str(), "problems") == 0)
 		problems();
+
+	// Generate tests
 	else if (strcmp(cmd.c_str(), "gen") == 0) {
 		string tag = tolower(getNextArg(line, i, s));
 		bool tag_exists = false;
@@ -83,8 +89,9 @@ void parse_line(const char* line) {
 			}
 		if (!tag_exists)
 			eprintf("Unknown problem tag: '%s'\n", tag.c_str());
-	}
-	else if (strcmp(cmd.c_str(), "genin") == 0) {
+
+	// Generate tests' inputs
+	} else if (strcmp(cmd.c_str(), "genin") == 0) {
 		string tag = tolower(getNextArg(line, i, s));
 		bool tag_exists = false;
 		for (size_t j = 0; j < problems_available_size; ++j)
@@ -95,21 +102,9 @@ void parse_line(const char* line) {
 			}
 		if (!tag_exists)
 			eprintf("Unknown problem tag: '%s'\n", tag.c_str());
-	}
-	else if (strcmp(cmd.c_str(), "judge") == 0) {
-		string tag = tolower(getNextArg(line, i, s));
-		bool tag_exists = false;
-		for (size_t j = 0; j < problems_available_size; ++j)
-			if (tolower(problems_available[j]->tag()) == tag) {
-				string exec = getNextArg(line, i, s);
-				Problem::judge(problems_available[j], exec, string(line + i, line + s));
-				tag_exists = true;
-				break;
-			}
-		if (!tag_exists)
-			eprintf("Unknown problem tag: '%s'\n", tag.c_str());
-	}
-	else if (strcmp(cmd.c_str(), "genout") == 0) {
+
+	// Generate tests' outputs
+	} else if (strcmp(cmd.c_str(), "genout") == 0) {
 		string tag = tolower(getNextArg(line, i, s));
 		bool tag_exists = false;
 		for (size_t j = 0; j < problems_available_size; ++j)
@@ -130,8 +125,23 @@ void parse_line(const char* line) {
 			}
 		if (!tag_exists)
 			eprintf("Unknown problem tag: '%s'\n", tag.c_str());
-	}
-	else
+
+	// Judge solution
+	} else if (strcmp(cmd.c_str(), "judge") == 0) {
+		string tag = tolower(getNextArg(line, i, s));
+		bool tag_exists = false;
+		for (size_t j = 0; j < problems_available_size; ++j)
+			if (tolower(problems_available[j]->tag()) == tag) {
+				string exec = getNextArg(line, i, s);
+				Problem::judge(problems_available[j], exec, string(line + i, line + s));
+				tag_exists = true;
+				break;
+			}
+		if (!tag_exists)
+			eprintf("Unknown problem tag: '%s'\n", tag.c_str());
+
+	// Non-internal command - run it via shell
+	} else
 		system(line);
 }
 
@@ -168,7 +178,7 @@ int main(int argc, char **argv) {
 	while (running) {
 		FD_ZERO(&fds);
 		FD_SET(fileno(rl_instream), &fds);
-		r = select(FD_SETSIZE, &fds, NULL, NULL, NULL);
+		r = select(FD_SETSIZE, &fds, nullptr, nullptr, nullptr);
 		if (r < 0) {
 			perror("select()");
 			rl_callback_handler_remove();
@@ -188,7 +198,7 @@ int main(int argc, char **argv) {
 	}
 	printf("\n");
 #else
-	char *line = NULL;
+	char *line = nullptr;
 	size_t n = 0;
 	ssize_t read;
 	printf("%s", prompt);

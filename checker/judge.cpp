@@ -45,7 +45,7 @@ struct CompareTestName {
 int Problem::JudgeClass::checkOnTest(Problem* pr, bool display_errors) {
 	// Runtime
 	timeval ts, te;
-	gettimeofday(&ts, NULL);
+	gettimeofday(&ts, nullptr);
 #ifdef _WIN32
 	int ret = system((exec_ + " < " + inFile_ + " > " + ansFile_).c_str()) >> 8;
 #else
@@ -56,7 +56,7 @@ int Problem::JudgeClass::checkOnTest(Problem* pr, bool display_errors) {
 		freopen((inFile_).c_str(), "r", stdin);
 		freopen(ansFile_.c_str(), "w", stdout);
 
-		char *arg[] = {NULL};
+		char *arg[] = {nullptr};
 		execve(exec_.c_str(), arg, arg);
 		exit(-1);
 	}
@@ -70,7 +70,7 @@ int Problem::JudgeClass::checkOnTest(Problem* pr, bool display_errors) {
 		// Shouldn't happen. Unknown status...
 		ret = EXIT_FAILURE;
 #endif
-	gettimeofday(&te, NULL);
+	gettimeofday(&te, nullptr);
 	double cl = (te.tv_sec + static_cast<double>(te.tv_usec)/1000000) - (ts.tv_sec + static_cast<double>(ts.tv_usec)/1000000);
 	// End of runtime && time calculating
 	cl *= 1000;
@@ -142,7 +142,7 @@ void Problem::JudgeClass::operator()(Problem* pr, const string& exec, const stri
 	string file_name;
 try_open_dir:
 	dir = opendir(test_dir.c_str());
-	if (dir == NULL) {
+	if (!dir) {
 		eprintf("Cannot open directory '%s'\n", test_dir.c_str());
 		if (!is_default) {
 			is_default = true;

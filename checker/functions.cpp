@@ -126,6 +126,8 @@ unsigned long long atoull(const string& s) {
 	return res;
 }
 
+long long atoll(const string& s) { return atoll(s.c_str()); }
+
 bool isNum(const string& s, long long down, long long up) {
 	if (isPositiveNum(s)) {
 		long long x = atoull(s);
@@ -134,25 +136,26 @@ bool isNum(const string& s, long long down, long long up) {
 	return false;
 }
 
-void try_set(std::pair<int, int>& p, const string& oper, const string& val) {
+template<class T>
+static void try_set(std::pair<T, T>& p, const string& oper, const string& val) {
 	if (oper == "<") {
-		if (isNum(val, p.first + 1, p.second + 1) && p.first <= static_cast<int>(atoull(val) - 1))
+		if (isNum(val, p.first + 1, p.second + 1) && p.first <= atoll(val) - 1)
 			p.second = atoull(val) - 1;
 		else
 			eprintf("Wrong value: '%s'\n", val.c_str());
 	}
 	else if (oper == "<=") {
-		if (isNum(val, p.first, p.second) && p.first <= static_cast<int>(atoull(val)))
+		if (isNum(val, p.first, p.second) && p.first <= atoll(val))
 			p.second = atoull(val);
 		else
 			eprintf("Wrong value: '%s'\n", val.c_str());
 	} else if (oper == ">") {
-		if (isNum(val, p.first - 1, p.second - 1) && p.second >= static_cast<int>(atoull(val) + 1))
+		if (isNum(val, p.first - 1, p.second - 1) && p.second >= atoll(val) + 1)
 			p.first = atoull(val) + 1;
 		else
 			eprintf("Wrong value: '%s'\n", val.c_str());
 	}  else if (oper == ">=") {
-		if (isNum(val, p.first, p.second) && p.second >= static_cast<int>(atoull(val)))
+		if (isNum(val, p.first, p.second) && p.second >= atoll(val))
 			p.first = atoull(val);
 		else
 			eprintf("Wrong value: '%s'\n", val.c_str());
@@ -169,7 +172,8 @@ bool isOperator(const string& s) {
 	return s == "<" || s == ">" || s == "<=" || s == ">=" || s == "="; // We don't use !=
 }
 
-string parseArgLimits(const string& args, map<string, std::pair<int,int> >& limits) {
+template<class T>
+static string __parseArgLimits(const string& args, map<string, std::pair<T, T>>& limits) {
 	string other_args, new_args;
 	new_args.reserve(args.size()); // For more efficiency
 	for (size_t i = 0; i < args.size(); ++i) {
@@ -224,10 +228,34 @@ string parseArgLimits(const string& args, map<string, std::pair<int,int> >& limi
 	return other_args;
 }
 
-void printLimits(FILE* stream, const map<string, std::pair<int,int> >& limits) {
+// Alias
+string parseArgLimits(const string& args, map<string, std::pair<int, int>>& limits) {
+	return __parseArgLimits(args, limits);
+}
+
+// Alias
+string parseArgLimits(const string& args,
+	map<string, std::pair<int64_t, int64_t>>& limits)
+{
+	return __parseArgLimits(args, limits);
+}
+
+template<class T>
+static void __printLimits(FILE* stream, const map<string, std::pair<T, T>>& limits) {
 	fprintf(stream, "Ranges:\n");
-	for (__typeof(limits.begin()) i = limits.begin(); i != limits.end(); ++i)
-		fprintf(stream, " %s -> [%i, %i]\n", i->first.c_str(), i->second.first, i->second.second);
+	for (auto&& p : limits)
+		fprintf(stream, " %s -> [%lli, %lli]\n", p.first.c_str(),
+			(long long)p.second.first, (long long)p.second.second);
+}
+
+// Alias
+void printLimits(FILE* stream, const map<string, std::pair<int, int>>& limits) {
+	return __printLimits(stream, limits);
+}
+
+// Alias
+void printLimits(FILE* stream, const map<string, std::pair<int64_t, int64_t>>& limits) {
+	return __printLimits(stream, limits);
 }
 
 #ifdef _WIN32
@@ -265,7 +293,7 @@ int __remove_rat(int dirfd, const char* path) {
 		return unlinkat(dirfd, path, AT_REMOVEDIR);
 
 	DIR *dir = fdopendir(fd);
-	if (dir == nullptr) {
+	if (!dir) {
 		sclose(fd);
 		return unlinkat(dirfd, path, AT_REMOVEDIR);
 	}
