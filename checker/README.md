@@ -14,8 +14,8 @@ To add problem to checker you only have to write class which inherit Problem cla
 
 Replace part:
 ```C++
-Problem* problems_available[] = {
-	};
+std::vector<Problem*> problems_available {
+};
 ```
 
 in problems_available.cpp with:
@@ -23,59 +23,66 @@ in problems_available.cpp with:
 ```C++
 class EasyProblem : public Problem {
 public:
-	string name() const { return "EASY"; }
+    string name() const { return "EASY"; }
 
-	string tag() const { return "EAS"; }
+    string tag() const { return "EAS"; }
 
-	string help() const { return "EASY:\n  Using is obvious\n"; }
+    string help() const { return "EASY:\n  Using is obvious\n"; }
 
-	int genout(const string& input, const string& output) {
-		FILE *in = fopen(input.c_str(), "r"), *out = fopen(output.c_str(), "w");
-		if (!in || !out)
-			return 1;
-		int n;
-		fscanf(in, "%i", &n);
-		fprintf(out, "%i\n", n);
-		fclose(in);
-		fclose(out);
-		return 0;
-	}
+    int genout(const string& input, const string& output) {
+        FILE *in = fopen(input.c_str(), "r"), *out = fopen(output.c_str(), "w");
+        if (!in || !out)
+            return 1;
+        int n;
+        fscanf(in, "%i", &n);
+        fprintf(out, "%i\n", n);
+        fclose(in);
+        fclose(out);
+        return 0;
+    }
 
 protected:
-	int genin(const string& file, int seed) {
-		gen__.seed(seed); // Seed random generator, to be later able to use getRandom()
-		FILE *f = fopen(file.c_str(), "w");
-		if (!f)
-			return 1;
-		int n = getRandom(1, 1000000);
-		fprintf(f, "%i\n", n);
-		fclose(f);
-		return 0;
-	}
+    int genin(const string& file, int seed) {
+        gen__.seed(seed); // Seed random generator, to be later able to use getRandom()
+        FILE *f = fopen(file.c_str(), "w");
+        if (!f)
+            return 1;
+        int n = getRandom(1, 1000000);
+        fprintf(f, "%i\n", n);
+        fclose(f);
+        return 0;
+    }
 };
 
-Problem* problems_available[] = {
-	new EasyProblem // Easy problem
+std::vector<Problem*> problems_available {
+    new EasyProblem
 };
 ```
 
 In Easy problem you have to read a number and write it. Now you can build checker. (See [How to build](#building))
 
-Let's see more complex example:
+Let's see a more complex example:
 
 ```C++
 #include <fstream>
 
 // For given number n (1 <= n <= 10^9) you have to find two numbers 0 < a, b < 10^18 for which GCD(a, b) = n
-class ComplexProblem : public Problem {
+class ComplexProblem : public StandardProblem {
 public:
-    ComplexProblem(): limits() {}
+    ComplexProblem() {}
 
     string name() const { return "Complex"; }
 
     string tag() const { return "COM"; }
 
-    string help() const { return "Complex:\n  gen com [N] [ARGS]... - generates N tests, in ARGS you can use comparisons to set variables: n\n    To see default ranges type 'gen com'\n    Example: gen com 10 n <= 28 - generates 10 tests in which n <= 28\n"; }
+    string help() const {
+        return
+            "Complex:\n"
+            "  gen com [N] [ARGS]...           - generates N tests, in ARGS you can use comparisons to set variables: n\n"
+            "      To see default ranges type 'gen com'\n"
+            "      Example: gen com 10 n <= 28 - generates 10 tests in which n <= 28\n"
+            "  refute com EXEC [ARGS]...       - generates a test, judges EXEC on it and repeats until a refuting test is found. In ARGS you can use comparisons as in command 'gen'\n";
+    }
 
     int checker(const string& input, const string& output, const string& answer, size_t* l = nullptr, string* errors = nullptr) {
         (void) output; // Disable Unused parameter warning
@@ -125,18 +132,11 @@ public:
         return 0;
     }
 
-    int gen(const std::string& path, const std::string& args, bool in_only = false) {
+
+    std::string parseOutAndSetLimits(const std::string& args) {
         limits.clear(); // Remove old limits (optional)
         limits["n"] = {1, 1000000000}; // Set default limit for n
-        string N, x;
-        ArgParser ap(parseArgLimits(args, limits)); // Parse args for new limits, set them and create ap with other arguments (these which don't set limits)
-        // Parsing arguments
-        while (x = ap.getNextArg(), x.size())
-            if (isPositiveNum(x)) // If x is positive number
-                N = x;
-        printLimits(stdout, limits);
-        Problem::gen(path, N, in_only); // We can use default gen
-        return 0;
+        return parseArgLimits(args, limits); // Parse args for new limits, set them and return other arguments (these which don't set limits)
     }
 
     int genout(const string& input, const string& output) {
@@ -165,8 +165,6 @@ protected:
     }
 
 private:
-    map<string, pair<int64_t, int64_t>> limits;
-
     static long long GCD(long long a, long long b) {
         long long c;
         while (b > 0) {
@@ -178,12 +176,13 @@ private:
     }
 };
 
-Problem* problems_available[] = {
+std::vector<Problem*> problems_available {
     new ComplexProblem
 };
+
 ```
 
-We think all you want to know is in code above, but unless you think it is you can ask a question e.g. by Issue.
+We think all you want to know is in code above, but unless you think it is you can ask a question e.g. by crating an Issue.
 
 # Building
 

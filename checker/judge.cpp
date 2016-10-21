@@ -111,6 +111,11 @@ void Problem::JudgeClass::operator()(Problem* pr, const string& exec, const stri
 	exec_ = exec;
 
 	// Check if exec exists
+	if (exec.empty()) {
+		eprintf("Missing executable argument\n");
+		return;
+	}
+
 	FILE *f = fopen(exec.c_str(), "r");
 	if (f)
 		fclose(f);

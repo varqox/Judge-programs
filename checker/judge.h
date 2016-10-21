@@ -10,6 +10,8 @@ private:
 	double runtime_;
 	int checkOnTest(Problem* pr, bool display_errors = false);
 
+	friend int Problem::refute(const std::string& path, const std::string& exec, const std::string& args);
+
 public:
 	explicit JudgeClass(const std::string& s) : inFile_(), outFile_(), exec_(), ansFile_(s), runtime_(0) {
 		FILE *f = fopen(s.c_str(), "w");

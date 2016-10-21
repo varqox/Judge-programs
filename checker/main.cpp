@@ -42,19 +42,32 @@ void checker_linehandler(char *line) {
 
 const char* prompt = "checker$ ";
 
-extern Problem* problems_available[];
-extern size_t problems_available_size;
+extern std::vector<Problem*> problems_available;
 
 void problems() {
 	printf("Available problems:\n");
-	for (size_t i = 0; i < problems_available_size; ++i)
-		printf("%s [%s]\n", problems_available[i]->name().c_str(), problems_available[i]->tag().c_str());
+	for (auto&& problem : problems_available)
+		printf("%s [%s]\n", problem->name().c_str(), problem->tag().c_str());
 }
 
 void help() {
-	printf("Available commands:\n  help                      display this help\n  problems                  display available problems\n  judge TAG EXEC [TEST_DIR] [TEST]...  judge EXEC in TAG problem, in TEST_DIR (default tests/TAG/), on tests TEST... (default all)\n  gen TAG [ARGS]...         generate tests for problem TAG\n  genin TAG [ARGS]...       generate only in tests for problem TAG\n  genout TAG FILE...        generate output file for input FILE in problem TAG\n\nDefault:\n  gen TAG [N]               generate N (default 0) tests for problem TAG\n\nUsing comparisions:\n  You can use: 'n < A' or 'A < n' or 'A = n' or 'A < n <= B' or 'n > A'... (A, B are numbers) you don't have to use spaces between expressions e.g. 'n<1 m>2 x=4', but expression syntax is 'VAR OPER N' or 'N OPER VAR' (VAR - variable name, OPER - operator ('<', '>', '<=', '>=' or '='), N - number)\n\n");
-	for (size_t i = 0; i < problems_available_size; ++i)
-		printf("%s\n", problems_available[i]->help().c_str());
+	printf("Available commands:\n"
+		"  help                      display this help\n"
+		"  problems                  display available problems\n"
+		"  judge TAG EXEC [TEST_DIR] [TEST]...  judge EXEC in TAG problem, in TEST_DIR (default tests/TAG/), on tests TEST... (default all)\n"
+		"  gen TAG [ARGS]...         generate tests for problem TAG\n"
+		"  genin TAG [ARGS]...       generate only in tests for problem TAG\n"
+		"  genout TAG FILE...        generate output file for input FILE in problem TAG\n"
+		"  refute TAG EXEC [ARGS]... generate tests for problem TAG and test EXEC on them immediately, until refuting test is found\n"
+		"\n"
+		"Default:\n"
+		"  gen TAG [N]               generate N (default 0) tests for problem TAG\n"
+		"\n"
+		"Using comparisons:\n"
+		"  You can use: 'n < A' or 'A < n' or 'A = n' or 'A < n <= B' or 'n > A'... (A, B are numbers) you don't have to use spaces between expressions e.g. 'n<1 m>2 x=4', but expression syntax is 'VAR OPER N' or 'N OPER VAR' (VAR - variable name, OPER - operator ('<', '>', '<=', '>=' or '='), N - number)\n"
+		"\n");
+	for (auto&& problem : problems_available)
+		printf("%s\n", problem->help().c_str());
 }
 
 void parse_line(const char* line) {
@@ -81,9 +94,9 @@ void parse_line(const char* line) {
 	else if (strcmp(cmd.c_str(), "gen") == 0) {
 		string tag = tolower(getNextArg(line, i, s));
 		bool tag_exists = false;
-		for (size_t j = 0; j < problems_available_size; ++j)
-			if (tolower(problems_available[j]->tag()) == tag) {
-				problems_available[j]->gen("tests/" + tag + "/", string(line + i, line + s));
+		for (auto&& problem : problems_available)
+			if (tolower(problem->tag()) == tag) {
+				problem->gen("tests/" + tag + "/", string(line + i, line + s));
 				tag_exists = true;
 				break;
 			}
@@ -94,9 +107,9 @@ void parse_line(const char* line) {
 	} else if (strcmp(cmd.c_str(), "genin") == 0) {
 		string tag = tolower(getNextArg(line, i, s));
 		bool tag_exists = false;
-		for (size_t j = 0; j < problems_available_size; ++j)
-			if (tolower(problems_available[j]->tag()) == tag) {
-				problems_available[j]->gen("tests/" + tag + "/", string(line + i, line + s), true);
+		for (auto&& problem : problems_available)
+			if (tolower(problem->tag()) == tag) {
+				problem->gen("tests/" + tag + "/", string(line + i, line + s), true);
 				tag_exists = true;
 				break;
 			}
@@ -107,8 +120,8 @@ void parse_line(const char* line) {
 	} else if (strcmp(cmd.c_str(), "genout") == 0) {
 		string tag = tolower(getNextArg(line, i, s));
 		bool tag_exists = false;
-		for (size_t j = 0; j < problems_available_size; ++j)
-			if (tolower(problems_available[j]->tag()) == tag) {
+		for (auto&& problem : problems_available)
+			if (tolower(problem->tag()) == tag) {
 				string test_in, test_out;
 				while (test_in = getNextArg(line, i, s), test_in.size()) {
 					if (file_exists(test_in)) {
@@ -116,7 +129,7 @@ void parse_line(const char* line) {
 							test_out = test_in.substr(0, test_in.size()-3) + ".out";
 						else
 							test_out = test_in + ".out";
-						problems_available[j]->genout(test_in, test_out);
+						problem->genout(test_in, test_out);
 					} else
 						eprintf("No such file: '%s'\n", test_in.c_str());
 				}
@@ -130,10 +143,24 @@ void parse_line(const char* line) {
 	} else if (strcmp(cmd.c_str(), "judge") == 0) {
 		string tag = tolower(getNextArg(line, i, s));
 		bool tag_exists = false;
-		for (size_t j = 0; j < problems_available_size; ++j)
-			if (tolower(problems_available[j]->tag()) == tag) {
+		for (auto&& problem : problems_available)
+			if (tolower(problem->tag()) == tag) {
 				string exec = getNextArg(line, i, s);
-				Problem::judge(problems_available[j], exec, string(line + i, line + s));
+				Problem::judge(problem, exec, string(line + i, line + s));
+				tag_exists = true;
+				break;
+			}
+		if (!tag_exists)
+			eprintf("Unknown problem tag: '%s'\n", tag.c_str());
+
+	// Refute solution
+	} else if (strcmp(cmd.c_str(), "refute") == 0) {
+		string tag = tolower(getNextArg(line, i, s));
+		bool tag_exists = false;
+		for (auto&& problem : problems_available)
+			if (tolower(problem->tag()) == tag) {
+				string exec = getNextArg(line, i, s);
+				problem->refute("tests/" + tag + "/", exec, string(line + i, line + s));
 				tag_exists = true;
 				break;
 			}
