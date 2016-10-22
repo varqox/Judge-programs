@@ -22,9 +22,9 @@ else
 endif
 
 PHONY := all
-all: chck.exe
+all: check.exe
 
-chck.exe: problem.o main.o problems_available.o judge.o functions.o
+check.exe: problem.o main.o problems_available.o judge.o functions.o
 	$(Q)$(CXX) $^ $(LFLAGS) -o $@
 	@echo Build finished
 

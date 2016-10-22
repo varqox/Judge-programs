@@ -54,7 +54,7 @@ protected:
     }
 };
 
-std::vector<Problem*> problems_available {
+extern const std::vector<Problem*> problems_available {
     new EasyProblem
 };
 ```
@@ -176,7 +176,7 @@ private:
     }
 };
 
-std::vector<Problem*> problems_available {
+extern const std::vector<Problem*> problems_available {
     new ComplexProblem
 };
 
@@ -203,7 +203,7 @@ If you want better command line install GNU Readline library (on Ubuntu `sudo ap
   ```
 Now you can run checker:
   ```sh
-  ./chck
+  ./check
   ```
 
 ## Windows
@@ -218,4 +218,4 @@ Now you can run checker:
 
 4. Run script `compile.bat`
 
-Now you can run checker by executing file `chck.exe`
+Now you can run checker by executing file `check.exe`

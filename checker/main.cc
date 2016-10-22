@@ -1,9 +1,11 @@
-#include "problem.h"
-#include "judge.h"
 #include "functions.h"
+#include "judge.h"
+#include "problem.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <string>
 
 #ifdef _WIN32
@@ -42,7 +44,7 @@ void checker_linehandler(char *line) {
 
 const char* prompt = "checker$ ";
 
-extern std::vector<Problem*> problems_available;
+extern const std::vector<Problem*> problems_available;
 
 void problems() {
 	printf("Available problems:\n");
@@ -173,6 +175,11 @@ void parse_line(const char* line) {
 }
 
 int main(int argc, char **argv) {
+	// Guards
+	std::vector<std::unique_ptr<Problem>> pavail_guards;
+	for (auto&& problem : problems_available)
+		pavail_guards.emplace_back(problem);
+
 	// Run command passed via main parameters and exit
 	if (argc > 1) {
 		string line;

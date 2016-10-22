@@ -44,7 +44,7 @@ inline int64_t getRandom(int64_t a, int64_t b) {
 
 // Returns random number from [p.a, p.b]
 template<class A, class B>
-inline int getRandom(const std::pair<A, B>& p) {
+inline int64_t getRandom(const std::pair<A, B>& p) {
 	return getRandom(p.first, p.second);
 }
 

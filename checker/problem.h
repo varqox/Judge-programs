@@ -26,7 +26,7 @@ public:
 
 	virtual int genout(const std::string& input, const std::string& output) = 0;
 
-	virtual ~Problem() {}
+	virtual ~Problem() = default;
 
 protected:
 	virtual int genin(const std::string& file, int seed) = 0;
@@ -37,6 +37,7 @@ protected:
 	std::map<std::string, std::pair<int64_t, int64_t>> limits;
 
 public:
+
 	// Returns args after parsing out limits
 	virtual std::string parseOutAndSetLimits(const std::string& args) = 0;
 
@@ -62,4 +63,6 @@ public:
         printLimits(stdout, limits);
 		return Problem::refute(path, exec, new_args);
 	}
+
+	virtual ~StandardProblem() = default;
 };
