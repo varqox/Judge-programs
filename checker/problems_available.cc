@@ -9,5 +9,5 @@
 
 using namespace std;
 
-std::vector<Problem*> problems_available {
+extern const std::vector<Problem*> problems_available {
 };

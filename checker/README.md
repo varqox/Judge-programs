@@ -14,7 +14,7 @@ To add problem to checker you only have to write class which inherit Problem cla
 
 Replace part:
 ```C++
-std::vector<Problem*> problems_available {
+extern const std::vector<Problem*> problems_available {
 };
 ```
 
