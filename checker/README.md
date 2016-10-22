@@ -10,7 +10,7 @@ Checker is a library/tool used to simplify writing test generators.
 # How to use it
 ## Adding problem
 
-To add problem to checker you only have to write class which inherit Problem class and add it to problems_available array in problems_available.cpp. Let's see an example:
+To add problem to checker you only have to write class which inherit Problem class and add it to problems_available array in problems_available.cc. Let's see an example:
 
 Replace part:
 ```C++
@@ -18,7 +18,7 @@ extern const std::vector<Problem*> problems_available {
 };
 ```
 
-in problems_available.cpp with:
+in problems_available.cc with:
 
 ```C++
 class EasyProblem : public Problem {
@@ -210,12 +210,9 @@ Now you can run checker:
 
 1. Clone this repository where you want checker to live (you can [download it as zip](https://github.com/krzyk240/Judge-programs/archive/master.zip)).
 
-2. Download [compile.bat](https://github.com/krzyk240/Judge-programs/releases/download/vWIN/compile.bat) and place it to `checker/` directory (this in which are files such as main.cpp problem.cpp)
+2. Get the compiler:
+ - Download [TDM-GCC-32.zip](https://github.com/krzyk240/Judge-programs/releases/download/vWIN/TDM-GCC-32.zip) or [TDM-GCC-32.7z](https://github.com/krzyk240/Judge-programs/releases/download/vWIN/TDM-GCC-32.7z) and extract to `checker/` directory (this in which are files such as main.cc problem.cc)
 
-3. Get the compiler - there are two ways:
- - Download and install [TDM-GCC-32](http://sourceforge.net/projects/tdm-gcc/files/TDM-GCC%20Installer/tdm-gcc-4.8.1-3.exe/download)
- - Download [TDM-GCC-32.zip](https://github.com/krzyk240/Judge-programs/releases/download/vWIN/TDM-GCC-32.zip) or [TDM-GCC-32.7z](https://github.com/krzyk240/Judge-programs/releases/download/vWIN/TDM-GCC-32.7z) and extract to the same directory where you have placed `compile.bat`
-
-4. Run script `compile.bat`
+3. Run script `compile.bat`
 
 Now you can run checker by executing file `check.exe`

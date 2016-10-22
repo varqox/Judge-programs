@@ -17,7 +17,7 @@ endif
 
 
 .PHONY: release
-release: EXTRA_LD_FLAGS += -static
+release: EXTRA_LD_FLAGS += -static -s
 release:
 	@$(RM) check
 	@$(MAKE) all

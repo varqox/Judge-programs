@@ -42,7 +42,7 @@ void checker_linehandler(char *line) {
 }
 #endif
 
-const char* prompt = "checker$ ";
+const char* prompt = "checker> ";
 
 extern const std::vector<Problem*> problems_available;
 
@@ -244,6 +244,7 @@ int main(int argc, char **argv) {
 		parse_line(line);
 		printf("%s", prompt);
 	}
+	free(line);
 	printf("\n");
 #endif
 	return 0;

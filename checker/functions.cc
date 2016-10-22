@@ -244,8 +244,9 @@ template<class T>
 static void __printLimits(FILE* stream, const map<string, std::pair<T, T>>& limits) {
 	fprintf(stream, "Ranges:\n");
 	for (auto&& p : limits)
-		fprintf(stream, " %s -> [%lli, %lli]\n", p.first.c_str(),
-			(long long)p.second.first, (long long)p.second.second);
+		fprintf(stream, " %s -> [%s, %s]\n", p.first.c_str(),
+			myto_string(p.second.first).c_str(),
+			myto_string(p.second.second).c_str());
 }
 
 // Alias

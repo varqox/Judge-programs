@@ -1,13 +1,13 @@
 export
 
 # Extra options to compile project with
-EXTRA_OPTIONS = -O2 -std=c++11
+EXTRA_OPTIONS = -O3 -std=c++11
 
 # Extra options to link project with
-EXTRA_LD_OPTIONS = -s -O2 -static
+EXTRA_LD_OPTIONS = -s -O3 -static
 
 # Warnings options to compile project with
-WARNING_OPTIONS = -Wall -Wextra -Wabi -Weffc++ -Wshadow -Wfloat-equal -Wno-unused-result
+WARNING_OPTIONS = -Wall -Wextra -Wabi -Wshadow -Wfloat-equal -Wno-unused-result
 
 CFLAGS = $(WARNING_OPTIONS) $(EXTRA_OPTIONS) -c
 CXXFLAGS = $(CFLAGS)
@@ -41,7 +41,7 @@ force:
 
 .PHONY: $(PHONY)
 
-%.o: %.cpp force
+%.o: %.cc force
 	$(Q)$(CXX) $< $(CXXFLAGS) -o $@
 
 .PHONY: $(PHONY)

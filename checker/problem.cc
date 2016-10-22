@@ -58,7 +58,7 @@ int Problem::checker(const string& input, const string& output, const string& an
 		out_in.pop_back();
 
 	auto shortenLine = [](string line) {
-		constexpr uint max_length = 512;
+		constexpr unsigned max_length = 512;
 		if (line.size() > max_length) {
 			line.erase(line.begin() + max_length, line.end());
 			line += "...";
@@ -177,7 +177,7 @@ int Problem::refute(const string& path, const std::string& exec, const std::stri
 	judge.outFile_ = path + "refute.out";
 	judge.ansFile_ = path + "refute.ans";
 	judge.exec_ = exec;
-	for (uint i = 0; ; ++i) {
+	for (unsigned i = 0; ; ++i) {
 		printf("%u: ", i);
 		fflush(stdout);
 		if (genin(judge.inFile_, seed += val)) {
