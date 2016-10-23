@@ -190,7 +190,7 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 			cout << cl << "s >> line: " << line+1 << endl;
 			if(wrongs_info)
 			{
-				cout << "Get:\n'" << out_in[line] << "'\nExpected:\n'" << ans_in[line] << '\'' << endl;;
+				cout << "Read:\n'" << out_in[line] << "'\nExpected:\n'" << ans_in[line] << '\'' << endl;;
 			}
 			remove(outf_name.c_str());
 			return 1;
@@ -202,7 +202,7 @@ int task::check_on_test(const string& test, const string& exec, bool wrongs_info
 		cout << cl << "s >> line: " << line+1 << endl;
 		if(wrongs_info)
 		{
-			cout << "Get:\n'EOF'\nExpected:\n'" << ans_in[line] << '\'' << endl;
+			cout << "Read:\n'EOF'\nExpected:\n'" << ans_in[line] << '\'' << endl;
 		}
 		remove(outf_name.c_str());
 		return 1;
