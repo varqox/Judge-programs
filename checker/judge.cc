@@ -154,9 +154,12 @@ try_open_dir:
 			test_dir = "tests/" + tolower(pr->tag()) + "/";
 			eprintf("Try default directory '%s'\n", test_dir.c_str());
 			ap.reset();
+			closedir(dir);
 			goto try_open_dir;
-		} else
+		} else {
+			closedir(dir);
 			return;
+		}
 	}
 
 	// Check if tests are specified

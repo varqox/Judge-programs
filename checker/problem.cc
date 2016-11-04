@@ -190,7 +190,7 @@ int Problem::refute(const string& path, const std::string& exec, const std::stri
 		}
 
 		if (judge.checkOnTest(this, true)) {
-			printf("\nFound refuting test - see:\nin -> '%s'\nout -> '%s'", judge.inFile_.c_str(), judge.outFile_.c_str());
+			printf("\nFound refuting test - see:\nin -> '%s'\nout -> '%s'\n", judge.inFile_.c_str(), judge.outFile_.c_str());
 			break;
 		}
 	}
